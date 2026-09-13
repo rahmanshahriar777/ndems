@@ -15,6 +15,7 @@ import { LoginDto, RegisterDto, RefreshTokenDto, ChangePasswordDto } from './dto
 import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtPayload } from '@ems/shared';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -66,6 +67,7 @@ export class AuthController {
     };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
@@ -80,6 +82,7 @@ export class AuthController {
     };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('me')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current authenticated user profile and roles' })
@@ -91,6 +94,7 @@ export class AuthController {
     };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('change-password')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
