@@ -12,6 +12,21 @@ An enterprise-grade, production-ready Employee Management System architected as 
 
 ---
 
+## 🚀 Live Demo on Google Cloud Run
+
+The application is deployed and actively serving production traffic on **Google Cloud Run**:
+
+- **Live Application**: [https://ndems-app-knbmj7xqka-uc.a.run.app](https://ndems-app-knbmj7xqka-uc.a.run.app)
+- **Login Portal**: [https://ndems-app-knbmj7xqka-uc.a.run.app/login](https://ndems-app-knbmj7xqka-uc.a.run.app/login)
+- **Regional Service URL**: [https://ndems-app-479560345714.us-central1.run.app](https://ndems-app-479560345714.us-central1.run.app)
+- **REST API Base**: [https://ndems-app-knbmj7xqka-uc.a.run.app/api/v1](https://ndems-app-knbmj7xqka-uc.a.run.app/api/v1)
+
+### Quick Demo Accounts (Password: `Password123!`)
+- 👑 **Super Admin**: `superadmin@ems.local`
+- 📋 **HR Manager**: `hradmin@ems.local`
+- 👔 **Manager (Shahriar Rahman)**: `manager@ems.local`
+- 💻 **Employee (Sadia Rahman)**: `sadia.rahman@ems.local`
+
 ## 🏛️ System Architecture
 
 ```
