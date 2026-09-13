@@ -15,11 +15,11 @@ async function bootstrap() {
   const frontendUrl = configService.get<string>('frontendUrl', 'http://localhost:3000');
 
   // Security Headers
-  app.use(helmet());
+  app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false }));
 
   // CORS Configuration
   app.enableCors({
-    origin: [frontendUrl, 'http://localhost:3000'],
+    origin: true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],

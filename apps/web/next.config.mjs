@@ -8,8 +8,13 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1',
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: process.env.API_INTERNAL_URL || 'http://localhost:4000/api/:path*',
+      },
+    ];
   },
 };
 

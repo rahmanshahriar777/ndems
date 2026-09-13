@@ -8,10 +8,18 @@ class ApiClient {
   private refreshSubscribers: ((token: string) => void)[] = [];
 
   constructor() {
-    this.baseUrl =
-      typeof window !== 'undefined'
-        ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1')
-        : 'http://localhost:4000/api/v1';
+    if (typeof window !== 'undefined') {
+      const envUrl = process.env.NEXT_PUBLIC_API_URL;
+      if (envUrl && envUrl.startsWith('http') && !envUrl.includes('localhost')) {
+        this.baseUrl = envUrl;
+      } else if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        this.baseUrl = envUrl || 'http://localhost:4000/api/v1';
+      } else {
+        this.baseUrl = '/api/v1';
+      }
+    } else {
+      this.baseUrl = process.env.API_INTERNAL_URL || 'http://127.0.0.1:4000/api/v1';
+    }
   }
 
   private getAccessToken(): string | null {

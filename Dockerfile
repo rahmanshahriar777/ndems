@@ -29,7 +29,7 @@ RUN pnpm --filter @ems/shared build
 RUN pnpm --filter @ems/database db:generate
 RUN pnpm --filter @ems/database build
 RUN pnpm --filter @ems/api build
-RUN pnpm --filter @ems/web build
+RUN NEXT_PUBLIC_API_URL="/api/v1" pnpm --filter @ems/web build
 
 # Stage 3: Production Runner for Google Cloud Run
 FROM node:20-alpine AS runner
