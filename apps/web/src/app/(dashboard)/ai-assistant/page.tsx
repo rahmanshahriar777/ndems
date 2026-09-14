@@ -60,7 +60,7 @@ export default function AiAssistantPage() {
       content:
         'Hello! I am your **NEO EMS AI Assistant**, powered by Google Gemini via our secure backend proxy. How can I assist you with HR policies, leave applications, attendance guidelines, or payroll questions today?',
       timestamp: new Date().toISOString(),
-      model: 'gemini-flash-latest',
+      model: 'gemini-2.5-flash',
     },
   ]);
   const [inputMessage, setInputMessage] = useState('');
@@ -68,7 +68,7 @@ export default function AiAssistantPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [aiStatus, setAiStatus] = useState<'checking' | 'ready' | 'offline'>('checking');
-  const [activeModel, setActiveModel] = useState('gemini-flash-latest');
+  const [activeModel, setActiveModel] = useState('gemini-2.5-flash');
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
