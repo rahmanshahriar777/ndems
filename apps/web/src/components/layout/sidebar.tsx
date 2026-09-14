@@ -25,6 +25,7 @@ export const Sidebar: React.FC = () => {
 
   const navItems = [
     { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { label: 'AI Assistant', href: '/ai-assistant', icon: Sparkles, badge: 'AI' },
     { label: 'Employees', href: '/employees', icon: Users },
     { label: 'Departments', href: '/organization/departments', icon: Building2 },
     { label: 'Attendance', href: '/attendance', icon: Clock },
@@ -40,6 +41,7 @@ export const Sidebar: React.FC = () => {
       icon: ShieldCheck,
     });
   }
+
 
   return (
     <aside className="w-64 border-r border-slate-200 bg-white flex flex-col justify-between p-4 shrink-0">
@@ -64,15 +66,23 @@ export const Sidebar: React.FC = () => {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
                   isActive
                     ? 'bg-primary-500/15 text-primary-300 border border-primary-500/30 shadow-glow'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-primary-400' : 'text-slate-400'}`} />
-                <span>{item.label}</span>
+                <div className="flex items-center gap-3">
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-primary-400' : 'text-slate-400'}`} />
+                  <span>{item.label}</span>
+                </div>
+                {item.badge && (
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-gradient-to-r from-primary-500 to-purple-500 text-white shadow-sm">
+                    {item.badge}
+                  </span>
+                )}
               </Link>
+
             );
           })}
         </nav>

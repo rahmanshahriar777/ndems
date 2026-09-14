@@ -86,12 +86,141 @@ The application is deployed and actively serving production traffic on **Google 
    - Itemized payslips with access control enforcement.
    - Bi-annual performance review cycles, OKRs, goal tracking, and 360 feedback.
 
-5. **DevOps, Observability & Production (Phase 6)**:
+5. **Google Gemini AI Workplace Assistant (Production Proxy)**:
+   - **Server-Side Reverse Proxy**: Zero client-side Gemini exposure; API keys never leak to browser bundles, network traces, logs, or git.
+   - **Resilient Service Layer**: Configurable model (`gemini-1.5-flash`), temperature, max tokens, timeout, and exponential backoff retry with jitter.
+   - **Enterprise Guardrails**: Input length clamping, PII scrubbing (payment cards, secrets), and HR/workplace-scoped system prompt bounding.
+   - **Security & Rate Limiting**: Mandatory JWT authentication and `@Throttle(20 req/min)` per user to guard quotas.
+   - **Comprehensive Audit Trail**: Automatically logs actor ID, email, token usage, latency, and status in Postgres via `AuditService`.
+   - **Modern Next.js Chat Interface**: Interactive chat portal (`/ai-assistant`) with multi-turn history, quick prompt chips, latency/token indicators, copy actions, and error handling.
+
+6. **DevOps, Observability & Production (Phase 6)**:
    - Multi-stage Dockerfiles with non-root security execution (`node`).
    - Production Docker Compose with Nginx reverse proxy.
    - Declarative Kubernetes manifests (Deployments, Services, HPA, PDB, Ingress).
    - GitHub Actions CI/CD workflows for linting, testing, Docker builds, and deployments.
    - Prometheus metrics endpoint and backup/restore scripts.
+
+---
+
+## 🤖 Google Gemini AI Integration & Security Architecture
+
+### Architecture Diagram
+
+```
++-------------------------------------------------------------------------+
+|                        Browser / Next.js Web App                        |
+|   - Dedicated AI Assistant Portal (/ai-assistant)                       |
+|   - Header Quick Action & Sidebar Navigation                            |
+|   - Markdown rendering, loading state, error retry, token counters      |
+|   - Communicates ONLY with backend proxy (NO direct Gemini access)      |
++------------------------------------+------------------------------------+
+                                     |
+                                     | POST /api/v1/ai/chat (or /api/ai/chat)
+                                     | Bearer <JWT_ACCESS_TOKEN>
+                                     v
++-------------------------------------------------------------------------+
+|                           NestJS API Gateway                            |
+|   - JwtAuthGuard: Enforces valid user session                           |
+|   - ThrottlerGuard: Limits 20 requests/minute per IP/user               |
+|   - Input ValidationPipe: Strict schema & character clamping (4000 max) |
+|   - Guardrail Pipeline: Redacts PII & binds enterprise system scope     |
+|   - AuditService: Records user ID, latency, token count, status         |
+|   - Gemini Service Layer:                                               |
+|       * Exponential backoff retry for transient 429/503 errors          |
+|       * AbortController timeout handling (default 30000ms)              |
+|       * Error mapping (sanitized 401, quota 429, timeout 408, 400 bad)  |
++------------------------------------+------------------------------------+
+                                     |
+                                     | HTTPS with Server-Side GEMINI_API_KEY
+                                     v
++-------------------------------------------------------------------------+
+|                    Google Gemini AI REST API                            |
+|   https://generativelanguage.googleapis.com/v1beta/...                  |
++-------------------------------------------------------------------------+
+```
+
+### Environment Configuration
+
+The Gemini API key is loaded server-side only. Add the following to your server `.env` (or Kubernetes Secret):
+
+```dotenv
+# Google Gemini AI Service (Server-Side Proxy)
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-1.5-flash
+GEMINI_MAX_TOKENS=1024
+GEMINI_TEMPERATURE=0.7
+GEMINI_TIMEOUT_MS=30000
+GEMINI_MAX_RETRIES=3
+```
+
+> [!CAUTION]
+> Never prefix `GEMINI_API_KEY` with `NEXT_PUBLIC_`. It must remain exclusively accessible to the backend server process.
+
+### API Reference
+
+#### 1. Chat Proxy (`POST /api/v1/ai/chat` or `POST /api/ai/chat`)
+- **Authentication**: Bearer JWT (`Authorization: Bearer <token>`)
+- **Rate Limit**: 20 requests / minute
+- **Request Body**:
+  ```json
+  {
+    "message": "What is the policy for bereavement leave?",
+    "history": [
+      { "role": "user", "content": "Hi there" },
+      { "role": "model", "content": "Hello! How can I assist you with HR matters today?" }
+    ],
+    "context": "Department: Engineering",
+    "temperature": 0.7,
+    "maxTokens": 1024
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "reply": "Bereavement leave provides up to 3 paid working days upon notice to HR and your immediate manager.",
+    "model": "gemini-1.5-flash",
+    "usage": {
+      "promptTokens": 45,
+      "completionTokens": 28,
+      "totalTokens": 73
+    },
+    "latencyMs": 342,
+    "timestamp": "2026-09-14T01:40:00.000Z"
+  }
+  ```
+
+#### 2. Service Health (`GET /api/v1/ai/health`)
+- **Response**:
+  ```json
+  {
+    "status": "available",
+    "configured": true,
+    "model": "gemini-1.5-flash"
+  }
+  ```
+
+### Testing & Verification
+
+1. **Run Unit Tests**:
+   ```bash
+   pnpm --filter @ems/api test ai.service.spec.ts
+   ```
+
+2. **Test Chat via cURL**:
+   ```bash
+   # 1. Obtain JWT token
+   TOKEN=$(curl -s -X POST http://localhost:4000/api/v1/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{"email":"superadmin@ems.local","password":"Password123!"}' | jq -r '.data.accessToken')
+
+   # 2. Call AI Proxy Chat Endpoint
+   curl -X POST http://localhost:4000/api/v1/ai/chat \
+     -H "Authorization: Bearer $TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{"message":"Summarize annual leave entitlements."}'
+   ```
+
 
 ---
 

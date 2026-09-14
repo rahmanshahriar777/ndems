@@ -25,8 +25,17 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
   });
 
+  // Support direct proxy path /api/ai/* as well as standard /api/v1/ai/*
+  app.use((req: any, res: any, next: any) => {
+    if (req.url && req.url.startsWith('/api/ai')) {
+      req.url = req.url.replace('/api/ai', '/api/v1/ai');
+    }
+    next();
+  });
+
   // Global Prefix: /api/v1
   app.setGlobalPrefix(apiPrefix.replace(/^\//, ''));
+
 
   // Global Validation Pipe
   app.useGlobalPipes(

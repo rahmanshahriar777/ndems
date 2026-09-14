@@ -158,3 +158,34 @@ export interface PayslipSummary {
   status: PayrollStatus;
   disbursementDate?: DateString;
 }
+
+// AI Assistant & Gemini Proxy Types
+export interface AiChatMessage {
+  role: 'user' | 'model' | 'assistant';
+  content: string;
+  timestamp?: DateString;
+}
+
+export interface AiChatRequest {
+  message: string;
+  history?: AiChatMessage[];
+  context?: string;
+  model?: string;
+  temperature?: number;
+  maxTokens?: number;
+}
+
+export interface AiChatTokenUsage {
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+}
+
+export interface AiChatResponse {
+  reply: string;
+  model: string;
+  usage?: AiChatTokenUsage;
+  latencyMs: number;
+  timestamp: DateString;
+}
+
