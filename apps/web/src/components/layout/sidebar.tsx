@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -18,10 +18,12 @@ import {
 import { useAuth } from '../../context/auth-context';
 import { SystemRole } from '@ems/shared';
 import { Logo } from '../ui/logo';
+import { AvatarModal } from '../profile/avatar-modal';
 
 export const Sidebar: React.FC = () => {
   const pathname = usePathname();
   const { user, logout, hasRole } = useAuth();
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
 
   const navItems = [
     { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -79,30 +81,48 @@ export const Sidebar: React.FC = () => {
       </div>
 
       {/* User Footer Profile */}
-      <div className="pt-4 border-t border-white/5">
-        <div className="flex items-center justify-between p-2 rounded-xl bg-white/[0.03] border border-white/5">
-          <div className="flex items-center gap-2.5 overflow-hidden">
-            <div className="w-8 h-8 rounded-full bg-primary-600/30 border border-primary-500/30 flex items-center justify-center text-xs font-semibold text-primary-300 shrink-0">
-              {user?.firstName?.[0] || 'U'}
-            </div>
-            <div className="truncate">
-              <p className="text-xs font-medium text-slate-200 truncate">
+      <div className="pt-4 border-t border-slate-200">
+        <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-200">
+          <button
+            type="button"
+            onClick={() => setIsAvatarModalOpen(true)}
+            title="Click to change your profile picture"
+            className="flex items-center gap-2.5 overflow-hidden text-left hover:opacity-80 transition group flex-1"
+          >
+            {user?.avatarUrl ? (
+              <img
+                src={user.avatarUrl}
+                alt="Avatar"
+                className="w-8 h-8 rounded-full object-cover border border-slate-300 group-hover:border-primary-500 shrink-0 shadow-xs"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-primary-600/20 border border-primary-500/30 flex items-center justify-center text-xs font-semibold text-primary-700 shrink-0">
+                {user?.firstName?.[0] || 'U'}
+              </div>
+            )}
+            <div className="truncate flex-1">
+              <p className="text-xs font-semibold text-slate-800 truncate group-hover:text-primary-700">
                 {user ? `${user.firstName || ''} ${user.lastName || ''}` : 'Loading...'}
               </p>
               <p className="text-[10px] text-slate-500 font-mono">
-                {user?.roles?.[0] || 'EMPLOYEE'}
+                {user?.roles?.[0] || 'EMPLOYEE'} • Photo
               </p>
             </div>
-          </div>
+          </button>
           <button
             onClick={() => logout()}
             title="Logout"
-            className="p-1.5 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition"
+            className="p-1.5 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-500 transition ml-1"
           >
             <LogOut className="w-4 h-4" />
           </button>
         </div>
       </div>
+
+      <AvatarModal
+        isOpen={isAvatarModalOpen}
+        onClose={() => setIsAvatarModalOpen(false)}
+      />
     </aside>
   );
 };

@@ -151,10 +151,18 @@ export default function EmployeesPage() {
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-primary-600/30 to-cyan-500/20 border border-primary-500/30 flex items-center justify-center text-sm font-bold text-primary-300">
-                    {emp.firstName?.[0]}
-                    {emp.lastName?.[0]}
-                  </div>
+                  {emp.avatarUrl ? (
+                    <img
+                      src={emp.avatarUrl}
+                      alt={`${emp.firstName} ${emp.lastName}`}
+                      className="w-11 h-11 rounded-2xl object-cover border border-primary-500/40 shadow-sm"
+                    />
+                  ) : (
+                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-primary-600/30 to-cyan-500/20 border border-primary-500/30 flex items-center justify-center text-sm font-bold text-primary-300">
+                      {emp.firstName?.[0]}
+                      {emp.lastName?.[0]}
+                    </div>
+                  )}
                   <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                     {emp.status || 'FULL_TIME'}
                   </span>
@@ -210,8 +218,27 @@ export default function EmployeesPage() {
               {employees.map((emp) => (
                 <tr key={emp.id} className="hover:bg-white/[0.02] transition">
                   <td className="py-3 px-4 font-semibold text-slate-100">
-                    {emp.firstName} {emp.lastName}
-                    <span className="block text-[11px] font-normal text-slate-500 font-mono">{emp.email}</span>
+                    <div className="flex items-center gap-2.5">
+                      {emp.avatarUrl ? (
+                        <img
+                          src={emp.avatarUrl}
+                          alt=""
+                          className="w-8 h-8 rounded-full object-cover border border-slate-300 shadow-xs shrink-0"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-primary-600/20 text-primary-300 font-bold flex items-center justify-center text-xs shrink-0">
+                          {emp.firstName?.[0]}
+                        </div>
+                      )}
+                      <div>
+                        <div>
+                          {emp.firstName} {emp.lastName}
+                        </div>
+                        <span className="block text-[11px] font-normal text-slate-500 font-mono">
+                          {emp.email}
+                        </span>
+                      </div>
+                    </div>
                   </td>
                   <td className="py-3 px-4 font-mono text-slate-400">{emp.employeeNumber}</td>
                   <td className="py-3 px-4">{emp.department?.name || 'Engineering'}</td>

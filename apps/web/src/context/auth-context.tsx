@@ -14,7 +14,9 @@ interface AuthContextType {
   logout: () => Promise<void>;
   hasRole: (...roles: SystemRole[]) => boolean;
   hasPermission: (permission: string) => boolean;
+  updateUserAvatar: (avatarUrl: string | null) => void;
 }
+
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -67,6 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+
   const register = async (email: string, password: string, firstName: string, lastName: string) => {
     setIsLoading(true);
     try {
@@ -87,7 +90,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     try {
       const refreshToken = localStorage.getItem('ems_refresh_token');
-      await api.post('/auth/logout', { refreshToken }).catch(() => {});
+      if (refreshToken) {
+        await api.post('/auth/logout', { refreshToken });
+      }
+    } catch {
+      // Ignore
     } finally {
       localStorage.removeItem('ems_access_token');
       localStorage.removeItem('ems_refresh_token');
@@ -99,14 +106,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const hasRole = (...roles: SystemRole[]): boolean => {
     if (!user || !user.roles) return false;
-    if (user.roles.includes(SystemRole.SUPER_ADMIN)) return true;
     return roles.some((r) => user.roles.includes(r));
   };
 
   const hasPermission = (permission: string): boolean => {
-    if (!user) return false;
-    if (user.roles?.includes(SystemRole.SUPER_ADMIN)) return true;
-    return user.permissions?.includes(permission) ?? false;
+    if (!user || !user.permissions) return false;
+    return user.permissions.includes(permission);
+  };
+
+  const updateUserAvatar = (avatarUrl: string | null) => {
+    if (!user) return;
+    const updatedUser = { ...user, avatarUrl: avatarUrl || undefined };
+    setUser(updatedUser);
+    localStorage.setItem('ems_user', JSON.stringify(updatedUser));
   };
 
   return (
@@ -120,6 +132,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logout,
         hasRole,
         hasPermission,
+        updateUserAvatar,
       }}
     >
       {children}

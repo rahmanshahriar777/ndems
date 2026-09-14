@@ -241,4 +241,74 @@ export class EmployeesService {
   async getAuditLogs(employeeId: string) {
     return this.audit.getLogs('EMPLOYEE', employeeId);
   }
+
+  async getMyProfile(userId: string, employeeId?: string) {
+    let empId = employeeId;
+    if (!empId) {
+      const emp = await this.prisma.employee.findFirst({
+        where: { userId, deletedAt: null },
+      });
+      if (!emp) {
+        throw new NotFoundException('No employee record linked to current user account');
+      }
+      empId = emp.id;
+    }
+    return this.findOne(empId);
+  }
+
+  async updateMyAvatar(
+    userId: string,
+    employeeId: string | undefined,
+    avatarUrl: string | null | undefined,
+    actorEmail?: string,
+  ) {
+    let empId = employeeId;
+    if (!empId) {
+      const emp = await this.prisma.employee.findFirst({
+        where: { userId, deletedAt: null },
+      });
+      if (!emp) {
+        throw new NotFoundException('No employee record linked to current user account');
+      }
+      empId = emp.id;
+    }
+
+    const existing = await this.prisma.employee.findUnique({
+      where: { id: empId },
+    });
+
+    if (!existing) {
+      throw new NotFoundException('Employee not found');
+    }
+
+    const cleanAvatarUrl = avatarUrl && avatarUrl.trim().length > 0 ? avatarUrl.trim() : null;
+
+    const updated = await this.prisma.employee.update({
+      where: { id: empId },
+      data: { avatarUrl: cleanAvatarUrl },
+    });
+
+    await this.audit.log({
+      actorId: userId,
+      actorEmail,
+      action: AuditAction.UPDATE,
+      entityType: 'EMPLOYEE_AVATAR',
+      entityId: empId,
+      beforeState: { avatarUrl: existing.avatarUrl },
+      afterState: { avatarUrl: updated.avatarUrl },
+    });
+
+    this.logger.log(`Employee ${empId} (${existing.email}) updated avatar picture`);
+
+    return {
+      success: true,
+      message: cleanAvatarUrl
+        ? 'Profile picture updated successfully'
+        : 'Profile picture removed successfully',
+      data: {
+        employeeId: updated.id,
+        avatarUrl: updated.avatarUrl,
+      },
+    };
+  }
 }

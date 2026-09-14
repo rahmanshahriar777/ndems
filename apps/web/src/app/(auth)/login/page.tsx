@@ -121,13 +121,19 @@ export default function LoginPage() {
               </button>
               <button
                 type="button"
-                onClick={() => quickFill('sadia.rahman@ems.local')}
+                onClick={() => quickFill('employee@ems.local')}
                 className="px-2.5 py-1.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 text-slate-300 text-left truncate"
               >
-                💻 Employee (Sadia)
+                💼 Nadia (Employee)
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Security watermark */}
+        <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500">
+          <ShieldCheck className="w-4 h-4 text-emerald-500" />
+          <span>AES-256 Encrypted &bull; RBAC Protected &bull; ISO 27001 Ready</span>
         </div>
 
         <p className="text-center text-xs text-slate-500">

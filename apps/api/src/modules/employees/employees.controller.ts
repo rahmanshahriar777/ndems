@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { EmployeesService } from './employees.service';
-import { CreateEmployeeDto, UpdateEmployeeDto, EmployeeQueryDto } from './dto/employee.dto';
+import { CreateEmployeeDto, UpdateEmployeeDto, EmployeeQueryDto, UpdateAvatarDto } from './dto/employee.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -29,6 +29,21 @@ export class EmployeesController {
   @ApiOperation({ summary: 'List employees with pagination, search, and filtering' })
   findAll(@Query() query: EmployeeQueryDto) {
     return this.service.findAll(query);
+  }
+
+  @Get('me')
+  @ApiOperation({ summary: 'Get profile of current authenticated employee' })
+  getMyProfile(@CurrentUser() user: JwtPayload) {
+    return this.service.getMyProfile(user.sub, user.employeeId);
+  }
+
+  @Patch('me/avatar')
+  @ApiOperation({ summary: 'Update or remove personal profile picture for authenticated employee' })
+  updateMyAvatar(
+    @Body() dto: UpdateAvatarDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.service.updateMyAvatar(user.sub, user.employeeId, dto.avatarUrl, user.email);
   }
 
   @Get(':id')

@@ -143,3 +143,13 @@ export class EmployeeQueryDto {
   @IsOptional()
   sortOrder?: 'asc' | 'desc' = 'desc';
 }
+
+export class UpdateAvatarDto {
+  @ApiPropertyOptional({
+    description: 'Profile picture image URL or Base64 data URI (send null or empty string to remove)',
+    example: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
+  })
+  @IsString()
+  @IsOptional()
+  avatarUrl?: string;
+}

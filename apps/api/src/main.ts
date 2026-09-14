@@ -3,6 +3,7 @@ import { ValidationPipe, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
+import { json, urlencoded } from 'express';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -13,6 +14,10 @@ async function bootstrap() {
   const port = configService.get<number>('port', 4000);
   const apiPrefix = configService.get<string>('apiPrefix', '/api/v1');
   const frontendUrl = configService.get<string>('frontendUrl', 'http://localhost:3000');
+
+  // Body parser limits for profile photo uploads (data URLs up to 10MB)
+  app.use(json({ limit: '10mb' }));
+  app.use(urlencoded({ extended: true, limit: '10mb' }));
 
   // Security Headers
   app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false }));

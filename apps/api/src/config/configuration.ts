@@ -71,3 +71,4 @@ export default (): AppConfig => ({
     limit: parseInt(process.env.THROTTLE_LIMIT || '100', 10),
   },
 });
+

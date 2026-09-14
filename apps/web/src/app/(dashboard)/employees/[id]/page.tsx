@@ -15,15 +15,21 @@ import {
   Clock,
   CalendarDays,
   ShieldCheck,
+  Camera,
 } from 'lucide-react';
 import { DashboardLayout } from '../../../../components/layout/dashboard-layout';
 import { api } from '../../../../lib/api-client';
+import { useAuth } from '../../../../context/auth-context';
+import { AvatarModal } from '../../../../components/profile/avatar-modal';
+import { SystemRole } from '@ems/shared';
 
 export default function EmployeeDetailPage() {
   const params = useParams();
   const id = params?.id as string;
+  const { user, hasRole } = useAuth();
   const [employee, setEmployee] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -98,9 +104,32 @@ export default function EmployeeDetailPage() {
         {/* Profile Header Hero */}
         <div className="glass-panel p-6 rounded-2xl border border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-primary-600 to-cyan-500 flex items-center justify-center text-xl font-bold text-white shadow-glow">
-              {employee.firstName?.[0]}
-              {employee.lastName?.[0]}
+            <div className="relative group shrink-0">
+              {employee.avatarUrl ? (
+                <img
+                  src={employee.avatarUrl}
+                  alt={`${employee.firstName} ${employee.lastName}`}
+                  className="w-16 h-16 rounded-2xl object-cover border border-primary-500/40 shadow-glow"
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-primary-600 to-cyan-500 flex items-center justify-center text-xl font-bold text-white shadow-glow">
+                  {employee.firstName?.[0]}
+                  {employee.lastName?.[0]}
+                </div>
+              )}
+
+              {(user?.employeeId === employee.id ||
+                user?.email === employee.email ||
+                hasRole(SystemRole.SUPER_ADMIN, SystemRole.HR_ADMIN)) && (
+                <button
+                  type="button"
+                  onClick={() => setIsAvatarModalOpen(true)}
+                  title="Change profile picture"
+                  className="absolute -bottom-1 -right-1 p-1.5 rounded-xl bg-primary-600 hover:bg-primary-500 text-white shadow-md transition hover:scale-110"
+                >
+                  <Camera className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
             <div>
               <div className="flex items-center gap-3">
@@ -224,6 +253,17 @@ export default function EmployeeDetailPage() {
           </div>
         </div>
       </div>
+
+      <AvatarModal
+        isOpen={isAvatarModalOpen}
+        onClose={() => setIsAvatarModalOpen(false)}
+        onSuccess={(newAvatarUrl) => {
+          setEmployee((prev: any) => ({
+            ...prev,
+            avatarUrl: newAvatarUrl,
+          }));
+        }}
+      />
     </DashboardLayout>
   );
 }
