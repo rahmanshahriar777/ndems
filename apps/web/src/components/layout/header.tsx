@@ -1,9 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { Bell, Clock, Sparkles } from 'lucide-react';
-
 import { useAuth } from '../../context/auth-context';
 import { api } from '../../lib/api-client';
 import { formatDhakaTime } from '../../lib/date-utils';
@@ -66,17 +64,6 @@ export const Header: React.FC<{ title?: string }> = ({ title }) => {
             <span>{clockMessage || (clocking ? 'Clocking...' : 'Quick Clock In')}</span>
           </button>
         )}
-
-        {/* AI Copilot Quick Action */}
-        <Link
-          href="/ai-assistant"
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-primary-50 to-indigo-50 hover:from-primary-100 hover:to-indigo-100 border border-primary-200/80 text-primary-700 text-xs font-semibold transition shadow-sm"
-          title="Open AI Workplace Assistant"
-        >
-          <Sparkles className="w-3.5 h-3.5 text-primary-600 animate-pulse" />
-          <span className="hidden md:inline">AI Copilot</span>
-        </Link>
-
 
         {/* Notification Bell */}
         <button

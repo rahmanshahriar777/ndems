@@ -33,14 +33,6 @@ export interface AppConfig {
     ttl: number;
     limit: number;
   };
-  gemini: {
-    apiKey: string;
-    model: string;
-    maxTokens: number;
-    temperature: number;
-    timeoutMs: number;
-    maxRetries: number;
-  };
 }
 
 export default (): AppConfig => ({
@@ -78,13 +70,4 @@ export default (): AppConfig => ({
     ttl: parseInt(process.env.THROTTLE_TTL || '60', 10),
     limit: parseInt(process.env.THROTTLE_LIMIT || '100', 10),
   },
-  gemini: {
-    apiKey: process.env.GEMINI_API_KEY || '',
-    model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
-    maxTokens: parseInt(process.env.GEMINI_MAX_TOKENS || '1024', 10),
-    temperature: parseFloat(process.env.GEMINI_TEMPERATURE || '0.7'),
-    timeoutMs: parseInt(process.env.GEMINI_TIMEOUT_MS || '30000', 10),
-    maxRetries: parseInt(process.env.GEMINI_MAX_RETRIES || '3', 10),
-  },
 });
-
