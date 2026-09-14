@@ -64,7 +64,7 @@ Your role:
     private readonly auditService: AuditService,
   ) {
     this.defaultApiKey = this.configService.get<string>('gemini.apiKey') || '';
-    this.defaultModel = this.configService.get<string>('gemini.model') || 'gemini-2.5-flash';
+    this.defaultModel = this.configService.get<string>('gemini.model') || 'gemini-flash-latest';
     this.defaultMaxTokens = this.configService.get<number>('gemini.maxTokens') || 1024;
     this.defaultTemperature = this.configService.get<number>('gemini.temperature') || 0.7;
     this.defaultTimeoutMs = this.configService.get<number>('gemini.timeoutMs') || 30000;

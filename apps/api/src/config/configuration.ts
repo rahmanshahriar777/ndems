@@ -80,7 +80,7 @@ export default (): AppConfig => ({
   },
   gemini: {
     apiKey: process.env.GEMINI_API_KEY || '',
-    model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+    model: process.env.GEMINI_MODEL || 'gemini-flash-latest',
     maxTokens: parseInt(process.env.GEMINI_MAX_TOKENS || '1024', 10),
     temperature: parseFloat(process.env.GEMINI_TEMPERATURE || '0.7'),
     timeoutMs: parseInt(process.env.GEMINI_TIMEOUT_MS || '30000', 10),
