@@ -182,8 +182,9 @@ export default function DashboardPage() {
               <div className="kpi-header">
                 <div className="kpi-icon purple">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="12" y1="1" x2="12" y2="23" />
-                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    <rect width="20" height="12" x="2" y="6" rx="2" />
+                    <circle cx="12" cy="12" r="2" />
+                    <path d="M6 12h.01M18 12h.01" />
                   </svg>
                 </div>
                 <span className="kpi-trend up">
@@ -195,7 +196,7 @@ export default function DashboardPage() {
                 </span>
               </div>
               <div className="kpi-value">
-                <span className="kpi-unit">BDT</span> {stats.monthlyPayroll}
+                {stats.monthlyPayroll}
               </div>
               <div className="kpi-label">Monthly Payroll</div>
               <div className="kpi-context">{stats.payrollPeriod}</div>
@@ -300,8 +301,9 @@ export default function DashboardPage() {
             <Link href="/payroll" className="module-card">
               <div className="module-icon purple">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="12" y1="1" x2="12" y2="23" />
-                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                  <rect width="20" height="12" x="2" y="6" rx="2" />
+                  <circle cx="12" cy="12" r="2" />
+                  <path d="M6 12h.01M18 12h.01" />
                 </svg>
               </div>
               <div>
@@ -309,7 +311,7 @@ export default function DashboardPage() {
                 <div className="module-desc">Salary processing, deductions, payslip generation, and disbursement tracking.</div>
               </div>
               <div className="module-footer">
-                <span className="module-stat">BDT {stats.monthlyPayroll} approved</span>
+                <span className="module-stat">{stats.monthlyPayroll} approved</span>
                 <span className="module-arrow">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="9 18 15 12 9 6" />
@@ -473,8 +475,9 @@ export default function DashboardPage() {
                 <Link href="/payroll" className="action-item">
                   <div className="action-icon amber">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="12" y1="1" x2="12" y2="23" />
-                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                      <rect width="20" height="12" x="2" y="6" rx="2" />
+                      <circle cx="12" cy="12" r="2" />
+                      <path d="M6 12h.01M18 12h.01" />
                     </svg>
                   </div>
                   <div className="action-info">
