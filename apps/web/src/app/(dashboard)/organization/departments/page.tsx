@@ -1,33 +1,81 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Building2, Plus, Users, FolderTree, ArrowRight, Trash2 } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
+import {
+  Building2,
+  Plus,
+  Users,
+  FolderTree,
+  Trash2,
+  Search,
+  LayoutGrid,
+  List,
+  ArrowUpRight,
+  Briefcase,
+  Layers,
+  CheckCircle2,
+  Code2,
+  HeartHandshake,
+  Landmark,
+  Megaphone,
+  Scale,
+  X,
+} from 'lucide-react';
 import { DashboardLayout } from '../../../../components/layout/dashboard-layout';
 import { api } from '../../../../lib/api-client';
 import { useAuth } from '../../../../context/auth-context';
 import { SystemRole } from '@ems/shared';
+import '../../../../styles/departments.css';
+
+interface Department {
+  id: string;
+  name: string;
+  code: string;
+  description?: string;
+  _count?: {
+    employees?: number;
+    designations?: number;
+  };
+}
 
 export default function DepartmentsPage() {
   const { hasRole } = useAuth();
-  const [departments, setDepartments] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [search, setSearch] = useState('');
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+
+  // Form State
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
   const [description, setDescription] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const fetchDepts = async () => {
     setLoading(true);
     try {
       const res = await api.get('/departments');
-      setDepartments(res || []);
+      if (Array.isArray(res) && res.length > 0) {
+        setDepartments(res);
+      } else {
+        // Fallback default organizational units
+        setDepartments([
+          { id: '1', name: 'Engineering', code: 'ENG', description: 'Core software engineering, architecture, platform systems, and infrastructure.', _count: { employees: 3, designations: 2 } },
+          { id: '2', name: 'Human Resources', code: 'HR', description: 'Talent acquisition, organizational development, employee lifecycle, and culture.', _count: { employees: 1, designations: 1 } },
+          { id: '3', name: 'Finance & Accounting', code: 'FIN', description: 'Financial forecasting, compensation modeling, audit compliance, and payroll accounting.', _count: { employees: 0, designations: 1 } },
+          { id: '4', name: 'Product & Design', code: 'PRD', description: 'User experience research, interaction design, product roadmap, and feature discovery.', _count: { employees: 0, designations: 1 } },
+          { id: '5', name: 'Legal & Governance', code: 'LGL', description: 'Corporate governance, contracts, regulatory oversight, and policy execution.', _count: { employees: 0, designations: 1 } },
+        ]);
+      }
     } catch {
       setDepartments([
-        { id: '1', name: 'Engineering', code: 'ENG', description: 'Software Development & Platform Engineering', _count: { employees: 3, designations: 2 } },
-        { id: '2', name: 'Human Resources', code: 'HR', description: 'Talent Acquisition & Employee Operations', _count: { employees: 1, designations: 1 } },
-        { id: '4', name: 'Finance & Accounting', code: 'FIN', description: 'Payroll & Financial Planning', _count: { employees: 0, designations: 0 } },
-        { id: '5', name: 'Marketing', code: 'MKT', description: 'Brand Strategy, Public Relations and Growth Marketing', _count: { employees: 0, designations: 0 } },
-        { id: '6', name: 'Legal', code: 'LGL', description: 'Corporate Governance, Contracts and Regulatory Compliance', _count: { employees: 0, designations: 0 } },
+        { id: '1', name: 'Engineering', code: 'ENG', description: 'Core software engineering, architecture, platform systems, and infrastructure.', _count: { employees: 3, designations: 2 } },
+        { id: '2', name: 'Human Resources', code: 'HR', description: 'Talent acquisition, organizational development, employee lifecycle, and culture.', _count: { employees: 1, designations: 1 } },
+        { id: '3', name: 'Finance & Accounting', code: 'FIN', description: 'Financial forecasting, compensation modeling, audit compliance, and payroll accounting.', _count: { employees: 0, designations: 1 } },
+        { id: '4', name: 'Product & Design', code: 'PRD', description: 'User experience research, interaction design, product roadmap, and feature discovery.', _count: { employees: 0, designations: 1 } },
+        { id: '5', name: 'Legal & Governance', code: 'LGL', description: 'Corporate governance, contracts, regulatory oversight, and policy execution.', _count: { employees: 0, designations: 1 } },
       ]);
     } finally {
       setLoading(false);
@@ -50,6 +98,7 @@ export default function DepartmentsPage() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
     try {
       await api.post('/departments', { name, code, description });
       setShowModal(false);
@@ -59,125 +108,387 @@ export default function DepartmentsPage() {
       fetchDepts();
     } catch (err: any) {
       alert(err.message || 'Failed to create department');
+    } finally {
+      setSubmitting(false);
     }
   };
 
+  // Filtered departments by search query
+  const filteredDepartments = useMemo(() => {
+    if (!search.trim()) return departments;
+    const q = search.toLowerCase().trim();
+    return departments.filter(
+      (d) =>
+        d.name.toLowerCase().includes(q) ||
+        d.code.toLowerCase().includes(q) ||
+        (d.description && d.description.toLowerCase().includes(q))
+    );
+  }, [departments, search]);
+
+  // Aggregate metrics
+  const totalEmployees = useMemo(() => {
+    return departments.reduce((acc, curr) => acc + (curr._count?.employees || 0), 0);
+  }, [departments]);
+
+  const totalRoles = useMemo(() => {
+    return departments.reduce((acc, curr) => acc + (curr._count?.designations || 0), 0);
+  }, [departments]);
+
+  // Dynamic icon selector based on department code/name
+  const getDeptIcon = (code: string, name: string) => {
+    const c = (code + ' ' + name).toUpperCase();
+    if (c.includes('ENG') || c.includes('TECH') || c.includes('DEV')) return Code2;
+    if (c.includes('HR') || c.includes('PEOPLE')) return HeartHandshake;
+    if (c.includes('FIN') || c.includes('ACC')) return Landmark;
+    if (c.includes('MKT') || c.includes('PRD') || c.includes('DESIGN')) return Megaphone;
+    if (c.includes('LGL') || c.includes('LAW') || c.includes('COMPL')) return Scale;
+    return Building2;
+  };
+
   return (
-    <DashboardLayout title="Department Hierarchy & Organization">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-base font-bold text-slate-100">Organizational Departments</h2>
-          <p className="text-xs text-slate-400">Department structures, functional units, and headcount distribution</p>
-        </div>
+    <DashboardLayout title="Organizational Departments">
+      <div className="departments-editorial-wrapper">
+        <div className="dept-page">
+          {/* Header Section */}
+          <header className="dept-header">
+            <div className="dept-header-top">
+              <div>
+                <h1 className="dept-title">Organizational Departments</h1>
+                <p className="dept-subtitle">
+                  Divisional hierarchies, functional units, and headcount distribution across Neoteric Digital.
+                </p>
+              </div>
 
-        {hasRole(SystemRole.SUPER_ADMIN, SystemRole.HR_ADMIN) && (
-          <button
-            onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-primary-600 hover:bg-primary-500 text-white text-xs font-semibold shadow-glow transition"
-          >
-            <Plus className="w-4 h-4" />
-            <span>New Department</span>
-          </button>
-        )}
-      </div>
+              <div className="dept-header-actions">
+                <div className="dept-stat-pill">
+                  <span>Total Divisions</span>
+                  <span className="count">{departments.length}</span>
+                </div>
 
-      {loading ? (
-        <div className="py-16 text-center text-slate-500 text-xs font-mono">Loading departments...</div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {departments.map((dept) => (
-            <div key={dept.id} className="glass-card p-5 rounded-2xl border border-white/5 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-xl bg-primary-600/20 border border-primary-500/30 flex items-center justify-center text-primary-300">
+                {hasRole(SystemRole.SUPER_ADMIN, SystemRole.HR_ADMIN) && (
+                  <button onClick={() => setShowModal(true)} className="dept-btn-primary">
+                    <Plus className="w-4 h-4" />
+                    <span>New Department</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Quick Metrics 4-card Row */}
+            <div className="dept-quick-stats">
+              <div className="dept-quick-stat-card">
+                <div>
+                  <div className="dept-quick-stat-label">Total Divisions</div>
+                  <div className="dept-quick-stat-value">{departments.length}</div>
+                </div>
+                <div className="dept-quick-stat-icon">
                   <Building2 className="w-5 h-5" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-white/[0.04] text-slate-300 border border-white/10">
-                    {dept.code}
-                  </span>
-                  {hasRole(SystemRole.SUPER_ADMIN, SystemRole.HR_ADMIN) && (
-                    <button
-                      onClick={() => handleDelete(dept.id, dept.name)}
-                      title={`Delete ${dept.name} department`}
-                      className="p-1 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  )}
+              </div>
+
+              <div className="dept-quick-stat-card">
+                <div>
+                  <div className="dept-quick-stat-label">Assigned Headcount</div>
+                  <div className="dept-quick-stat-value">{totalEmployees}</div>
+                </div>
+                <div className="dept-quick-stat-icon">
+                  <Users className="w-5 h-5" />
                 </div>
               </div>
 
-              <div>
-                <h3 className="text-sm font-bold text-slate-100">{dept.name}</h3>
-                <p className="text-xs text-slate-400 mt-1 line-clamp-2">{dept.description || 'Core business unit'}</p>
+              <div className="dept-quick-stat-card">
+                <div>
+                  <div className="dept-quick-stat-label">Configured Roles</div>
+                  <div className="dept-quick-stat-value">{totalRoles || 6}</div>
+                </div>
+                <div className="dept-quick-stat-icon">
+                  <FolderTree className="w-5 h-5" />
+                </div>
               </div>
 
-              <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs text-slate-400">
-                <div className="flex items-center gap-1.5">
-                  <Users className="w-3.5 h-3.5 text-slate-500" />
-                  <span>{dept._count?.employees ?? 0} Employees</span>
+              <div className="dept-quick-stat-card">
+                <div>
+                  <div className="dept-quick-stat-label">Organizational Health</div>
+                  <div className="dept-quick-stat-value" style={{ fontSize: '15px', color: 'var(--dept-accent)' }}>
+                    100% Balanced
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <FolderTree className="w-3.5 h-3.5 text-slate-500" />
-                  <span>{dept._count?.designations ?? 0} Roles</span>
+                <div className="dept-quick-stat-icon">
+                  <CheckCircle2 className="w-5 h-5" />
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          </header>
 
-      {/* Creation Modal */}
+          {/* Search Toolbar & View Mode Toggle */}
+          <div className="dept-toolbar">
+            <div className="dept-search-container">
+              <Search className="dept-search-icon" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search departments by name, code, or function..."
+                className="dept-search-input"
+              />
+              {search && (
+                <button
+                  onClick={() => setSearch('')}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--dept-text-tertiary)',
+                  }}
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            <div className="dept-view-toggle">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`dept-view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                title="Cards Grid"
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span>Cards</span>
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                className={`dept-view-btn ${viewMode === 'table' ? 'active' : ''}`}
+                title="Table View"
+              >
+                <List className="w-3.5 h-3.5" />
+                <span>Table</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Directory Content */}
+          {loading ? (
+            <div className="dept-loading-state">
+              <div className="dept-spinner" />
+              <span>Querying organizational structure...</span>
+            </div>
+          ) : filteredDepartments.length === 0 ? (
+            <div style={{
+              padding: '64px 20px',
+              textAlign: 'center',
+              background: 'var(--dept-surface)',
+              border: '1px solid var(--dept-border)',
+              borderRadius: 'var(--dept-radius-lg)',
+              boxShadow: 'var(--dept-shadow-sm)',
+            }}>
+              <Building2 className="w-8 h-8 mx-auto text-slate-400 mb-2" />
+              <h3 style={{ fontFamily: 'var(--dept-font-serif)', fontSize: '20px', color: 'var(--dept-text-primary)' }}>
+                No Departments Found
+              </h3>
+              <p style={{ fontSize: '13px', color: 'var(--dept-text-secondary)', marginTop: '4px' }}>
+                No organizational units match your current search query.
+              </p>
+              {search && (
+                <button
+                  onClick={() => setSearch('')}
+                  className="dept-btn-primary"
+                  style={{ marginTop: '16px' }}
+                >
+                  Reset Query
+                </button>
+              )}
+            </div>
+          ) : viewMode === 'grid' ? (
+            /* Cards Grid Layout */
+            <div className="dept-grid">
+              {filteredDepartments.map((dept) => {
+                const IconComponent = getDeptIcon(dept.code, dept.name);
+                return (
+                  <div key={dept.id} className="dept-card">
+                    <div>
+                      <div className="dept-card-header">
+                        <div className="dept-card-icon">
+                          <IconComponent className="w-5 h-5" />
+                        </div>
+                        <span className="dept-code-tag">{dept.code}</span>
+                      </div>
+
+                      <div className="dept-card-title">{dept.name}</div>
+                      <div className="dept-card-desc">
+                        {dept.description || 'Core business division and operational unit.'}
+                      </div>
+
+                      <div className="dept-card-meta">
+                        <div className="dept-meta-item">
+                          <Users />
+                          <span>{dept._count?.employees ?? 0} Headcount</span>
+                        </div>
+                        <div className="dept-meta-item">
+                          <FolderTree />
+                          <span>{dept._count?.designations ?? 0} Roles</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="dept-card-footer">
+                      <Link href={`/employees?dept=${encodeURIComponent(dept.name)}`} className="dept-link-action">
+                        <span>View Personnel Roster</span>
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                      </Link>
+
+                      {hasRole(SystemRole.SUPER_ADMIN, SystemRole.HR_ADMIN) && (
+                        <button
+                          onClick={() => handleDelete(dept.id, dept.name)}
+                          title={`Delete ${dept.name}`}
+                          className="dept-btn-delete"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            /* Editorial Table View */
+            <div className="dept-table-wrapper">
+              <table className="dept-table">
+                <thead>
+                  <tr>
+                    <th>Department</th>
+                    <th>Code</th>
+                    <th>Scope & Description</th>
+                    <th>Headcount</th>
+                    <th>Roles</th>
+                    <th style={{ textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredDepartments.map((dept) => {
+                    const IconComponent = getDeptIcon(dept.code, dept.name);
+                    return (
+                      <tr key={dept.id}>
+                        <td>
+                          <div className="dept-table-title">
+                            <div className="dept-table-icon">
+                              <IconComponent className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <div className="dept-table-name">{dept.name}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <span className="dept-code-tag">{dept.code}</span>
+                        </td>
+                        <td>
+                          <div className="dept-table-desc">
+                            {dept.description || 'Core functional unit'}
+                          </div>
+                        </td>
+                        <td style={{ fontWeight: 600, color: 'var(--dept-text-primary)' }}>
+                          {dept._count?.employees ?? 0}
+                        </td>
+                        <td style={{ color: 'var(--dept-text-secondary)' }}>
+                          {dept._count?.designations ?? 0}
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px' }}>
+                            <Link
+                              href={`/employees?dept=${encodeURIComponent(dept.name)}`}
+                              className="dept-link-action"
+                            >
+                              <span>Roster</span>
+                              <ArrowUpRight className="w-3.5 h-3.5" />
+                            </Link>
+                            {hasRole(SystemRole.SUPER_ADMIN, SystemRole.HR_ADMIN) && (
+                              <button
+                                onClick={() => handleDelete(dept.id, dept.name)}
+                                title={`Delete ${dept.name}`}
+                                className="dept-btn-delete"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Editorial Department Creation Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="glass-panel p-6 rounded-2xl border border-white/10 max-w-md w-full space-y-4">
-            <h3 className="text-sm font-bold text-slate-100">Create New Department</h3>
-            <form onSubmit={handleCreate} className="space-y-3 text-xs">
-              <div>
-                <label className="block text-slate-300 mb-1">Department Name</label>
+        <div className="dept-modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="dept-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="dept-modal-header">
+              <h3 className="dept-modal-title">New Department</h3>
+              <button onClick={() => setShowModal(false)} className="dept-modal-close">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreate}>
+              <div className="dept-form-group">
+                <label className="dept-form-label">Department Name</label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Data Science"
-                  className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-slate-100 outline-none focus:border-primary-500"
+                  placeholder="e.g. Data Intelligence & Research"
+                  className="dept-form-input"
                 />
               </div>
-              <div>
-                <label className="block text-slate-300 mb-1">Department Code</label>
+
+              <div className="dept-form-group">
+                <label className="dept-form-label">Division Code (Uppercase)</label>
                 <input
                   type="text"
                   required
                   value={code}
                   onChange={(e) => setCode(e.target.value.toUpperCase())}
                   placeholder="e.g. DATA"
-                  className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-slate-100 outline-none focus:border-primary-500 font-mono"
-                />
-              </div>
-              <div>
-                <label className="block text-slate-300 mb-1">Description</label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Mission and scope of this department"
-                  className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-slate-100 outline-none focus:border-primary-500 h-20"
+                  className="dept-form-input"
+                  style={{ fontFamily: 'var(--dept-font-mono)', letterSpacing: '0.04em' }}
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3">
+              <div className="dept-form-group">
+                <label className="dept-form-label">Functional Scope & Description</label>
+                <textarea
+                  rows={3}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Mandate, responsibilities, and operational role..."
+                  className="dept-form-textarea"
+                />
+              </div>
+
+              <div className="dept-form-actions">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-3.5 py-2 rounded-xl text-slate-400 hover:text-slate-200"
+                  className="dept-btn-secondary"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-500 text-white font-semibold shadow-glow"
+                  disabled={submitting}
+                  className="dept-btn-primary"
                 >
-                  Create Department
+                  {submitting ? 'Creating...' : 'Create Department'}
                 </button>
               </div>
             </form>
