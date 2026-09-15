@@ -107,7 +107,7 @@ export default function DashboardPage() {
               <div className="welcome-meta">
                 <span className="welcome-tag">
                   <span className="welcome-tag-dot" />
-                  Platform Live
+                  Live Platform
                 </span>
                 <span className="welcome-date">{timeState.dateStr}</span>
               </div>
