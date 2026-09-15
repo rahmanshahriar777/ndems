@@ -8,6 +8,7 @@ import {
   Users,
   Building2,
   Clock,
+  Calendar,
   CalendarDays,
   Banknote,
   TrendingUp,
@@ -51,6 +52,7 @@ export const Sidebar: React.FC = () => {
       items: [
         { label: 'Employees', href: '/employees', icon: Users, badge: '4' },
         { label: 'Departments', href: '/organization/departments', icon: Building2, badge: '5' },
+        { label: 'Calendar', href: '/calendar', icon: Calendar, badge: 'Today' },
         { label: 'Attendance', href: '/attendance', icon: Clock, badge: 'Active' },
         { label: 'Leaves', href: '/leaves', icon: CalendarDays },
         { label: 'Payroll', href: '/payroll', icon: Banknote, badge: 'Aug Paid' },
