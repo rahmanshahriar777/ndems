@@ -97,7 +97,7 @@ export const AvatarModal: React.FC<AvatarModalProps> = ({ isOpen, onClose, onSuc
         },
       );
 
-      const updatedUrl = res?.data?.avatarUrl || null;
+      const updatedUrl = (res as any)?.data?.avatarUrl || (res as any)?.avatarUrl || null;
       updateUserAvatar(updatedUrl);
       onSuccess?.(updatedUrl);
 

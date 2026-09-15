@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv';
 import { QUEUE_NAMES } from './queues/queue.constants.js';
 import { processPayroll } from './processors/payroll.processor.js';
 import { processNotification } from './processors/notification.processor.js';
+import { processAIJob } from './processors/ai.processor.js';
 
 dotenv.config();
 
@@ -44,7 +45,14 @@ async function bootstrap() {
     { connection, concurrency: 5 },
   );
 
-  const workers = [payrollWorker, notificationWorker];
+  // 3. AI Async Processing Worker
+  const aiWorker = new Worker(
+    QUEUE_NAMES.AI_PROCESSING,
+    processAIJob,
+    { connection, concurrency: 3 },
+  );
+
+  const workers = [payrollWorker, notificationWorker, aiWorker];
 
   for (const w of workers) {
     w.on('completed', (job) => {
@@ -58,6 +66,7 @@ async function bootstrap() {
   console.log('🚀 [Worker] All BullMQ workers initialized and listening for jobs:');
   console.log(` - ${QUEUE_NAMES.PAYROLL}`);
   console.log(` - ${QUEUE_NAMES.NOTIFICATIONS}`);
+  console.log(` - ${QUEUE_NAMES.AI_PROCESSING}`);
 
   // Graceful Shutdown
   const shutdown = async (signal: string) => {

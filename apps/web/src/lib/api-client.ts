@@ -107,7 +107,30 @@ class ApiClient {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    let response = await fetch(url, { ...options, headers });
+    let response: Response;
+    try {
+      response = await fetch(url, { ...options, headers });
+    } catch (networkErr: any) {
+      if (url.includes('localhost:4000')) {
+        const altUrl = url.replace('localhost:4000', 'localhost:4001');
+        try {
+          response = await fetch(altUrl, { ...options, headers });
+          this.baseUrl = this.baseUrl.replace('localhost:4000', 'localhost:4001');
+        } catch {
+          throw networkErr;
+        }
+      } else if (url.includes('localhost:4001')) {
+        const altUrl = url.replace('localhost:4001', 'localhost:4000');
+        try {
+          response = await fetch(altUrl, { ...options, headers });
+          this.baseUrl = this.baseUrl.replace('localhost:4001', 'localhost:4000');
+        } catch {
+          throw networkErr;
+        }
+      } else {
+        throw networkErr;
+      }
+    }
 
     // Handle 401: Token expired -> Refresh Token Rotation
     if (response.status === 401 && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/refresh')) {
@@ -172,6 +195,33 @@ class ApiClient {
   delete<T = any>(endpoint: string, options?: RequestOptions): Promise<T> {
     return this.request<T>(endpoint, { ...options, method: 'DELETE' });
   }
+
+  ai = {
+    generate: (data: {
+      prompt: string;
+      systemInstruction?: string;
+      temperature?: number;
+      maxTokens?: number;
+      model?: string;
+    }) =>
+      this.post<{
+        content: string;
+        provider: 'gemini' | 'groq';
+        model: string;
+        latencyMs: number;
+        failoverUsed: boolean;
+        failoverReason?: string;
+        usage?: {
+          promptTokens?: number;
+          completionTokens?: number;
+          totalTokens?: number;
+        };
+        requestId: string;
+        timestamp: string;
+      }>('/ai/generate', data),
+    getHealth: () => this.get<any>('/ai/health'),
+    getLogs: (limit = 20) => this.get<any[]>(`/ai/logs?limit=${limit}`),
+  };
 }
 
 export const api = new ApiClient();

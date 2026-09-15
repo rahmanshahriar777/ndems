@@ -33,6 +33,7 @@ export const Sidebar: React.FC = () => {
     { label: 'Leaves', href: '/leaves', icon: CalendarDays },
     { label: 'Payroll', href: '/payroll', icon: Banknote },
     { label: 'Performance', href: '/performance', icon: TrendingUp },
+    { label: 'AI Assistant', href: '/ai-assistant', icon: Sparkles },
   ];
 
   if (hasRole(SystemRole.SUPER_ADMIN, SystemRole.HR_ADMIN, SystemRole.AUDITOR)) {

@@ -24,6 +24,7 @@ import { PayrollModule } from './modules/payroll/payroll.module';
 import { PerformanceModule } from './modules/performance/performance.module';
 import { DocumentsModule } from './modules/documents/documents.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { AiModule } from './modules/ai/ai.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     PerformanceModule,
     DocumentsModule,
     NotificationsModule,
+    AiModule,
   ],
   providers: [
     {
