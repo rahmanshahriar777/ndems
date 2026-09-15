@@ -10,11 +10,10 @@ class ApiClient {
   constructor() {
     if (typeof window !== 'undefined') {
       const envUrl = process.env.NEXT_PUBLIC_API_URL;
-      if (envUrl && envUrl.startsWith('http') && !envUrl.includes('localhost')) {
+      if (envUrl && envUrl.startsWith('http') && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
         this.baseUrl = envUrl;
-      } else if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        this.baseUrl = envUrl || 'http://localhost:4000/api/v1';
       } else {
+        // Use same-origin /api/v1 which is automatically rewritten by Next.js and Nginx
         this.baseUrl = '/api/v1';
       }
     } else {
@@ -111,19 +110,17 @@ class ApiClient {
     try {
       response = await fetch(url, { ...options, headers });
     } catch (networkErr: any) {
-      if (url.includes('localhost:4000')) {
-        const altUrl = url.replace('localhost:4000', 'localhost:4001');
+      // Fallback strategy: if same-origin /api/v1 failed, attempt direct backend or vice-versa
+      const fallbackUrl = url.startsWith('/api/v1')
+        ? `http://localhost:4000${url}`
+        : (url.includes('localhost:4000/api/v1') ? url.replace('http://localhost:4000/api/v1', '/api/v1') : null);
+
+      if (fallbackUrl && fallbackUrl !== url) {
         try {
-          response = await fetch(altUrl, { ...options, headers });
-          this.baseUrl = this.baseUrl.replace('localhost:4000', 'localhost:4001');
-        } catch {
-          throw networkErr;
-        }
-      } else if (url.includes('localhost:4001')) {
-        const altUrl = url.replace('localhost:4001', 'localhost:4000');
-        try {
-          response = await fetch(altUrl, { ...options, headers });
-          this.baseUrl = this.baseUrl.replace('localhost:4001', 'localhost:4000');
+          response = await fetch(fallbackUrl, { ...options, headers });
+          if (fallbackUrl.startsWith('/api/v1')) {
+            this.baseUrl = '/api/v1';
+          }
         } catch {
           throw networkErr;
         }
