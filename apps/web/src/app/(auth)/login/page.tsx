@@ -1,17 +1,82 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Sparkles, Lock, Mail, ArrowRight, ShieldCheck } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import {
+  Lock,
+  Mail,
+  ArrowRight,
+  ShieldCheck,
+  Eye,
+  EyeOff,
+  RefreshCw,
+  ArrowLeft,
+  Sparkles,
+  Fingerprint
+} from 'lucide-react';
 import { useAuth } from '../../../context/auth-context';
-import { Logo } from '../../../components/ui/logo';
+import '../../../styles/login.css';
+
+interface Persona {
+  role: string;
+  badge: string;
+  email: string;
+  badgeColor: string;
+}
+
+const DEMO_PERSONAS: Persona[] = [
+  {
+    role: 'Super Administrator',
+    badge: 'SUPER_ADMIN',
+    email: 'superadmin@ems.local',
+    badgeColor: 'var(--login-rose)'
+  },
+  {
+    role: 'HR Manager',
+    badge: 'HR_ADMIN',
+    email: 'hradmin@ems.local',
+    badgeColor: 'var(--login-info)'
+  },
+  {
+    role: 'Engineering Manager',
+    badge: 'MANAGER',
+    email: 'manager@ems.local',
+    badgeColor: 'var(--login-warning)'
+  },
+  {
+    role: 'Senior Staff Engineer',
+    badge: 'EMPLOYEE',
+    email: 'sadia.rahman@ems.local',
+    badgeColor: 'var(--login-positive)'
+  }
+];
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const router = useRouter();
+  const { login, user } = useAuth();
   const [email, setEmail] = useState('superadmin@ems.local');
   const [password, setPassword] = useState('Password123!');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [dhakaTime, setDhakaTime] = useState('Dhaka (UTC+6)');
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const str = now.toLocaleTimeString('en-US', {
+        timeZone: 'Asia/Dhaka',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+      setDhakaTime(`${str} • Dhaka (UTC+6)`);
+    };
+    updateTime();
+    const timer = setInterval(updateTime, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,8 +84,9 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password);
+      router.push('/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Failed to authenticate');
+      setError(err.message || 'Failed to authenticate. Please verify credentials or backend status.');
     } finally {
       setLoading(false);
     }
@@ -32,116 +98,154 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col justify-center items-center px-4 py-12">
-      <div className="w-full max-w-md space-y-6">
+    <div className="login-editorial-wrapper">
+      <div className="login-container">
         {/* Header with Logo */}
-        <div className="text-center space-y-3 flex flex-col items-center">
-          <Link href="/" className="inline-block hover:opacity-90 transition mb-2">
-            <Logo size="xl" priority />
+        <div className="login-header">
+          <Link href="/" className="login-brand-link">
+            <div className="login-brand-mark">N</div>
+            <div className="login-brand-text">
+              <div className="login-brand-name">Neoteric Digital</div>
+              <div className="login-brand-sub">
+                <span>Identity Gateway</span>
+                <span className="login-brand-badge">EMS</span>
+              </div>
+            </div>
           </Link>
-          <div>
-            <h2 className="text-2xl font-bold text-slate-100 tracking-tight">Enterprise Portal Sign In</h2>
-            <p className="text-xs text-slate-400 mt-1">Neoteric Digital Employee Management System</p>
+
+          <h1 className="login-title">Enterprise Portal Sign In</h1>
+          <p className="login-subtitle">
+            Secure, role-governed workforce management gateway.
+          </p>
+
+          <div style={{ marginTop: '10px' }}>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '3px 10px',
+              borderRadius: '20px',
+              background: 'var(--login-surface)',
+              border: '1px solid var(--login-border)',
+              fontFamily: 'var(--login-font-mono)',
+              fontSize: '11px',
+              color: 'var(--login-text-tertiary)'
+            }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--login-positive)' }}></span>
+              <span>{dhakaTime}</span>
+            </span>
           </div>
         </div>
 
         {/* Card */}
-        <div className="glass-card p-8 rounded-2xl border border-white/10 shadow-2xl">
+        <div className="login-card">
           {error && (
-            <div className="mb-5 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs font-medium">
-              {error}
+            <div className="login-error-alert">
+              <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">Email Address</label>
-              <div className="relative">
-                <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <form onSubmit={handleSubmit}>
+            <div className="login-form-group">
+              <label className="login-label">Official Work Email</label>
+              <div className="login-input-wrapper">
+                <Mail size={16} className="login-input-icon" />
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@ems.local"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-sm text-slate-100 placeholder:text-slate-500 transition outline-none"
+                  className="login-input"
+                  autoComplete="email"
                 />
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">Password</label>
-              <div className="relative">
-                <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <div className="login-form-group">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <label className="login-label" style={{ margin: 0 }}>Password</label>
+                <span style={{ fontSize: '11.5px', color: 'var(--login-text-tertiary)' }}>
+                  Demo: <code style={{ fontFamily: 'var(--login-font-mono)', color: 'var(--login-accent)' }}>Password123!</code>
+                </span>
+              </div>
+
+              <div className="login-input-wrapper">
+                <Lock size={16} className="login-input-icon" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-sm text-slate-100 placeholder:text-slate-500 transition outline-none"
+                  placeholder="••••••••••••"
+                  className="login-input"
+                  autoComplete="current-password"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="login-password-toggle"
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 rounded-xl bg-primary-600 hover:bg-primary-500 text-white text-sm font-semibold shadow-glow transition flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
+              className="login-btn-submit"
             >
-              <span>{loading ? 'Authenticating...' : 'Sign In'}</span>
-              <ArrowRight className="w-4 h-4" />
+              {loading ? (
+                <>
+                  <RefreshCw size={15} className="animate-spin" />
+                  <span>Verifying Credentials...</span>
+                </>
+              ) : (
+                <>
+                  <span>Authenticate & Enter Workspace</span>
+                  <ArrowRight size={15} />
+                </>
+              )}
             </button>
           </form>
 
-          {/* Demo account quick selector */}
-          <div className="mt-6 pt-5 border-t border-white/5 space-y-2">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Quick Fill Demo Accounts</p>
-            <div className="grid grid-cols-2 gap-2 text-[11px]">
-              <button
-                type="button"
-                onClick={() => quickFill('superadmin@ems.local')}
-                className="px-2.5 py-1.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 text-slate-300 text-left truncate"
-              >
-                👑 Super Admin
-              </button>
-              <button
-                type="button"
-                onClick={() => quickFill('hradmin@ems.local')}
-                className="px-2.5 py-1.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 text-slate-300 text-left truncate"
-              >
-                📋 HR Manager
-              </button>
-              <button
-                type="button"
-                onClick={() => quickFill('manager@ems.local')}
-                className="px-2.5 py-1.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 text-slate-300 text-left truncate"
-              >
-                👔 Shahriar (Manager)
-              </button>
-              <button
-                type="button"
-                onClick={() => quickFill('employee@ems.local')}
-                className="px-2.5 py-1.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 text-slate-300 text-left truncate"
-              >
-                💼 Nadia (Employee)
-              </button>
+          {/* Quick-Fill Persona Chips */}
+          <div className="login-quick-fill-section">
+            <div className="login-quick-fill-header">One-Click Demo Personas</div>
+            <div className="login-quick-fill-grid">
+              {DEMO_PERSONAS.map((persona) => (
+                <button
+                  key={persona.email}
+                  type="button"
+                  onClick={() => quickFill(persona.email)}
+                  className="login-persona-chip"
+                  title={`Fill credentials for ${persona.role}`}
+                >
+                  <div className="login-persona-chip-role">
+                    <span style={{ color: persona.badgeColor }}>{persona.badge}</span>
+                    <span style={{ color: 'var(--login-text-tertiary)', fontSize: '9px' }}>FILL</span>
+                  </div>
+                  <div className="login-persona-chip-email">{persona.email}</div>
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
         {/* Security watermark */}
-        <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500">
-          <ShieldCheck className="w-4 h-4 text-emerald-500" />
-          <span>AES-256 Encrypted &bull; RBAC Protected &bull; ISO 27001 Ready</span>
+        <div className="login-footer-telemetry">
+          <ShieldCheck size={14} style={{ color: 'var(--login-positive)' }} />
+          <span>AES-256 Encrypted &bull; RBAC Protected &bull; SOC2 Ready</span>
         </div>
 
-        <p className="text-center text-xs text-slate-500">
-          Need a new account?{' '}
-          <Link href="/register" className="text-primary-400 hover:underline">
-            Register here
+        <div className="login-footer-links">
+          <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+            <ArrowLeft size={13} />
+            <span>Return to Neoteric Digital Overview</span>
           </Link>
-        </p>
+        </div>
       </div>
     </div>
   );
