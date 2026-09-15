@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NEO EMS — Executive Workforce Dashboard</title>
+  <title>NEO EMS — Neoteric Digital Employee Management System</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
   <style>
@@ -15,7 +15,6 @@
 
     :root {
       --bg: #f7f6f3;
-      --bg-warm: #f0eeea;
       --surface: #ffffff;
       --surface-muted: #faf9f7;
       --border: #e2dfda;
@@ -36,8 +35,8 @@
       --info-bg: #eef2f8;
       --purple: #6b4c8a;
       --purple-bg: #f3eef8;
-      --rose-bg: #fce8ec;
       --rose: #a0344a;
+      --rose-bg: #fce8ec;
       --shadow-sm: 0 1px 2px rgba(26,24,22,0.04);
       --shadow-md: 0 2px 8px rgba(26,24,22,0.06),0 1px 2px rgba(26,24,22,0.04);
       --shadow-lg: 0 4px 16px rgba(26,24,22,0.08),0 2px 4px rgba(26,24,22,0.04);
@@ -65,7 +64,6 @@
       min-height: 100vh;
     }
 
-    /* Grain overlay */
     body::before {
       content: '';
       position: fixed;
@@ -80,83 +78,132 @@
       min-height: 100vh;
     }
 
-    /* ─── SIDEBAR ────────────────────────────────────────── */
+    /* ─── SIDEBAR ──────────────────────────────────────── */
     .sidebar {
-      width: 244px;
+      width: 256px;
       background: var(--surface);
       border-right: 1px solid var(--border);
-      padding: 24px 16px;
       display: flex;
       flex-direction: column;
       position: fixed;
       top: 0; left: 0; bottom: 0;
       z-index: 100;
+      transition: width var(--transition-base);
     }
 
+    /* ─── BRAND ────────────────────────────────────────── */
     .sidebar-brand {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 0 8px 22px;
+      gap: 12px;
+      padding: 22px 20px 20px;
       border-bottom: 1px solid var(--border-subtle);
-      margin-bottom: 20px;
       text-decoration: none;
       color: inherit;
     }
 
     .sidebar-brand-mark {
-      width: 34px; height: 34px;
+      width: 38px;
+      height: 38px;
       background: var(--text-primary);
-      border-radius: 9px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sidebar-brand-mark::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 50%);
+    }
+
+    .sidebar-brand-letter {
       color: var(--text-inverse);
       font-family: var(--font-serif);
-      font-size: 19px;
+      font-size: 21px;
       font-style: italic;
+      line-height: 1;
+      position: relative;
+      z-index: 1;
     }
 
     .sidebar-brand-text {
       display: flex;
       flex-direction: column;
+      gap: 0px;
     }
 
     .sidebar-brand-name {
       font-weight: 700;
-      font-size: 14.5px;
-      letter-spacing: -0.01em;
-      line-height: 1.2;
+      font-size: 15px;
+      letter-spacing: -0.015em;
+      line-height: 1.15;
+      color: var(--text-primary);
+    }
+
+    .sidebar-brand-sub {
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
 
     .sidebar-brand-label {
-      font-size: 10.5px;
-      color: var(--text-tertiary);
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-    }
-
-    .sidebar-section-label {
       font-size: 10px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
       color: var(--text-tertiary);
-      padding: 16px 10px 6px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
 
+    .sidebar-brand-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--text-tertiary);
+    }
+
+    .sidebar-brand-type {
+      font-size: 10px;
+      color: var(--accent);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ─── NAV ──────────────────────────────────────────── */
     .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 12px 0;
       display: flex;
       flex-direction: column;
-      gap: 1px;
-      flex: 1;
+      gap: 2px;
     }
 
-    .sidebar-link {
+    .nav-section {
+      margin-bottom: 4px;
+    }
+
+    .nav-section-label {
+      font-size: 9.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-tertiary);
+      padding: 14px 10px 5px;
+      user-select: none;
+    }
+
+    .nav-link {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 8px 10px;
+      gap: 11px;
+      padding: 9px 10px;
       border-radius: var(--radius-sm);
       font-size: 13.5px;
       font-weight: 430;
@@ -164,82 +211,195 @@
       text-decoration: none;
       transition: all var(--transition-fast);
       cursor: pointer;
+      position: relative;
+      user-select: none;
     }
 
-    .sidebar-link:hover {
+    .nav-link:hover {
       background: var(--bg);
       color: var(--text-primary);
     }
 
-    .sidebar-link.active {
+    .nav-link.active {
       background: var(--accent-light);
       color: var(--accent);
-      font-weight: 550;
+      font-weight: 560;
     }
 
-    .sidebar-link svg {
-      width: 18px; height: 18px;
+    .nav-link.active::before {
+      content: '';
+      position: absolute;
+      left: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 20px;
+      background: var(--accent);
+      border-radius: 0 3px 3px 0;
+    }
+
+    .nav-icon {
+      width: 20px;
+      height: 20px;
       flex-shrink: 0;
-      opacity: 0.6;
+      opacity: 0.55;
+      transition: opacity var(--transition-fast);
     }
 
-    .sidebar-link.active svg {
+    .nav-link:hover .nav-icon {
+      opacity: 0.75;
+    }
+
+    .nav-link.active .nav-icon {
       opacity: 1;
     }
 
+    .nav-badge {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: var(--positive-bg);
+      color: var(--positive);
+    }
+
+    .nav-badge.warning {
+      background: var(--warning-bg);
+      color: var(--warning);
+    }
+
+    .nav-divider {
+      height: 1px;
+      background: var(--border-subtle);
+      margin: 8px 10px;
+    }
+
+    /* ─── FOOTER ───────────────────────────────────────── */
     .sidebar-footer {
-      padding-top: 16px;
+      padding: 12px;
       border-top: 1px solid var(--border-subtle);
     }
 
-    .sidebar-user {
+    .user-card {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 8px;
-      border-radius: var(--radius-sm);
+      gap: 11px;
+      padding: 10px;
+      border-radius: var(--radius-md);
+      transition: all var(--transition-fast);
+      cursor: pointer;
     }
 
-    .sidebar-avatar {
-      width: 30px; height: 30px;
+    .user-card:hover {
+      background: var(--bg);
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      background: var(--accent-muted);
+      background: linear-gradient(135deg, var(--accent-muted) 0%, var(--accent-light) 100%);
       color: var(--accent);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
+      font-size: 12.5px;
       font-weight: 700;
       letter-spacing: 0.02em;
+      flex-shrink: 0;
+      position: relative;
     }
 
-    .sidebar-user-info {
+    .user-avatar::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--positive);
+      border: 2px solid var(--surface);
+    }
+
+    .user-info {
       display: flex;
       flex-direction: column;
+      min-width: 0;
     }
 
-    .sidebar-user-name {
+    .user-name {
       font-size: 13px;
-      font-weight: 550;
+      font-weight: 600;
       line-height: 1.2;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .sidebar-user-role {
-      font-size: 11px;
-      color: var(--text-tertiary);
+    .user-meta {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 2px;
+    }
+
+    .user-role {
       font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--accent);
+      padding: 1px 5px;
+      background: var(--accent-light);
+      border-radius: 3px;
+      letter-spacing: 0.03em;
     }
 
-    /* ─── MAIN CONTENT ───────────────────────────────────── */
+    .user-status {
+      font-size: 10.5px;
+      color: var(--text-tertiary);
+    }
+
+    .user-menu-btn {
+      margin-left: auto;
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-tertiary);
+      transition: all var(--transition-fast);
+      flex-shrink: 0;
+    }
+
+    .user-menu-btn:hover {
+      background: var(--surface-muted);
+      color: var(--text-secondary);
+    }
+
+    .user-menu-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* ─── MAIN CONTENT ─────────────────────────────────── */
     .main-content {
       flex: 1;
-      margin-left: 244px;
+      margin-left: 256px;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      transition: margin-left var(--transition-base);
     }
 
-    /* ─── TOP BAR ────────────────────────────────────────── */
+    /* ─── TOP BAR ──────────────────────────────────────── */
     .topbar {
       height: 56px;
       background: var(--surface);
@@ -257,6 +417,29 @@
       display: flex;
       align-items: center;
       gap: 12px;
+    }
+
+    .topbar-menu-toggle {
+      display: none;
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all var(--transition-fast);
+    }
+
+    .topbar-menu-toggle:hover {
+      background: var(--bg);
+    }
+
+    .topbar-menu-toggle svg {
+      width: 16px;
+      height: 16px;
     }
 
     .topbar-breadcrumb {
@@ -297,7 +480,8 @@
     }
 
     .topbar-clock-dot {
-      width: 6px; height: 6px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       background: var(--positive);
       animation: pulse 2s ease-in-out infinite;
@@ -309,7 +493,8 @@
     }
 
     .topbar-btn {
-      width: 34px; height: 34px;
+      width: 34px;
+      height: 34px;
       border-radius: var(--radius-sm);
       border: 1px solid var(--border);
       background: var(--surface);
@@ -328,51 +513,29 @@
     }
 
     .topbar-btn svg {
-      width: 16px; height: 16px;
+      width: 16px;
+      height: 16px;
     }
 
     .topbar-btn-badge {
       position: absolute;
-      top: -3px; right: -3px;
-      width: 8px; height: 8px;
+      top: -3px;
+      right: -3px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: var(--accent);
       border: 2px solid var(--surface);
     }
 
     .topbar-divider {
-      width: 1px; height: 20px;
+      width: 1px;
+      height: 20px;
       background: var(--border-subtle);
       margin: 0 4px;
     }
 
-    .quick-clock-btn {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 7px 16px;
-      background: var(--accent);
-      color: var(--text-inverse);
-      border: none;
-      border-radius: var(--radius-sm);
-      font-family: var(--font-sans);
-      font-size: 12.5px;
-      font-weight: 550;
-      cursor: pointer;
-      transition: all var(--transition-fast);
-    }
-
-    .quick-clock-btn:hover {
-      background: var(--accent-hover);
-      transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(44,95,74,0.2);
-    }
-
-    .quick-clock-btn svg {
-      width: 14px; height: 14px;
-    }
-
-    /* ─── PAGE ───────────────────────────────────────────── */
+    /* ─── PAGE ─────────────────────────────────────────── */
     .page {
       flex: 1;
       padding: 28px 32px 40px;
@@ -380,20 +543,12 @@
       width: 100%;
     }
 
-    /* ─── WELCOME ────────────────────────────────────────── */
-    .welcome-section {
+    .page-header {
       margin-bottom: 28px;
       animation: fadeUp 0.5s ease forwards;
     }
 
-    .welcome-row {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 24px;
-    }
-
-    .welcome-greeting {
+    .page-title {
       font-family: var(--font-serif);
       font-size: 30px;
       font-weight: 400;
@@ -401,55 +556,23 @@
       line-height: 1.15;
     }
 
-    .welcome-subtitle {
+    .page-subtitle {
       font-size: 13.5px;
       color: var(--text-secondary);
       margin-top: 5px;
     }
 
-    .welcome-meta {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-shrink: 0;
-    }
-
-    .welcome-tag {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--text-tertiary);
-      padding: 4px 10px;
-      background: var(--surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-    }
-
-    .welcome-tag-dot {
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: var(--positive);
-    }
-
-    .welcome-date {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--text-tertiary);
-    }
-
-    /* ─── KPI CARDS ──────────────────────────────────────── */
-    .kpi-grid {
+    /* ─── QUICK STATS ROW ──────────────────────────────── */
+    .stats-row {
       display: grid;
       grid-template-columns: repeat(4,1fr);
       gap: 12px;
-      margin-bottom: 24px;
+      margin-bottom: 28px;
       animation: fadeUp 0.5s ease 0.08s forwards;
       opacity: 0;
     }
 
-    .kpi-card {
+    .stat-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
@@ -457,36 +580,38 @@
       transition: all var(--transition-base);
     }
 
-    .kpi-card:hover {
+    .stat-card:hover {
       box-shadow: var(--shadow-md);
       transform: translateY(-2px);
     }
 
-    .kpi-header {
+    .stat-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 12px;
     }
 
-    .kpi-icon {
-      width: 34px; height: 34px;
+    .stat-icon {
+      width: 34px;
+      height: 34px;
       border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    .kpi-icon svg {
-      width: 17px; height: 17px;
+    .stat-icon svg {
+      width: 17px;
+      height: 17px;
     }
 
-    .kpi-icon.green { background: var(--accent-light); color: var(--accent); }
-    .kpi-icon.blue { background: var(--info-bg); color: var(--info); }
-    .kpi-icon.amber { background: var(--warning-bg); color: var(--warning); }
-    .kpi-icon.purple { background: var(--purple-bg); color: var(--purple); }
+    .stat-icon.teal { background: var(--accent-light); color: var(--accent); }
+    .stat-icon.blue { background: var(--info-bg); color: var(--info); }
+    .stat-icon.amber { background: var(--warning-bg); color: var(--warning); }
+    .stat-icon.purple { background: var(--purple-bg); color: var(--purple); }
 
-    .kpi-trend {
+    .stat-trend {
       display: flex;
       align-items: center;
       gap: 3px;
@@ -495,16 +620,16 @@
       font-weight: 500;
       padding: 2px 7px;
       border-radius: 4px;
+      background: var(--positive-bg);
+      color: var(--positive);
     }
 
-    .kpi-trend.up { background: var(--positive-bg); color: var(--positive); }
-    .kpi-trend.neutral { background: var(--surface-muted); color: var(--text-tertiary); }
-
-    .kpi-trend svg {
-      width: 10px; height: 10px;
+    .stat-trend svg {
+      width: 10px;
+      height: 10px;
     }
 
-    .kpi-value {
+    .stat-value {
       font-family: var(--font-mono);
       font-size: 26px;
       font-weight: 500;
@@ -513,31 +638,26 @@
       margin-bottom: 3px;
     }
 
-    .kpi-value .kpi-unit {
-      font-size: 15px;
-      font-weight: 400;
-      color: var(--text-secondary);
-      margin-left: 2px;
-    }
-
-    .kpi-label {
+    .stat-label {
       font-size: 12px;
       color: var(--text-secondary);
       font-weight: 450;
     }
 
-    .kpi-context {
+    .stat-context {
       font-size: 11px;
       color: var(--text-tertiary);
       margin-top: 2px;
     }
 
-    /* ─── PORTAL TILES ───────────────────────────────────── */
+    /* ─── MODULE GRID ──────────────────────────────────── */
     .section-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 12px;
+      animation: fadeUp 0.5s ease 0.15s forwards;
+      opacity: 0;
     }
 
     .section-title {
@@ -545,235 +665,6 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      color: var(--text-tertiary);
-    }
-
-    .portals-grid {
-      display: grid;
-      grid-template-columns: repeat(4,1fr);
-      gap: 10px;
-      margin-bottom: 24px;
-      animation: fadeUp 0.5s ease 0.15s forwards;
-      opacity: 0;
-    }
-
-    .portal-tile {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 16px 18px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-      transition: all var(--transition-base);
-      text-decoration: none;
-      color: inherit;
-    }
-
-    .portal-tile:hover {
-      border-color: var(--accent-muted);
-      background: var(--accent-light);
-      transform: translateY(-1px);
-    }
-
-    .portal-tile:hover .portal-icon {
-      background: var(--accent);
-    }
-
-    .portal-tile:hover .portal-icon svg {
-      color: var(--text-inverse);
-    }
-
-    .portal-icon {
-      width: 38px; height: 38px;
-      border-radius: var(--radius-sm);
-      background: var(--bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: all var(--transition-base);
-    }
-
-    .portal-icon svg {
-      width: 18px; height: 18px;
-      color: var(--text-secondary);
-      transition: color var(--transition-base);
-    }
-
-    .portal-info {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .portal-name {
-      font-size: 13.5px;
-      font-weight: 550;
-      line-height: 1.2;
-    }
-
-    .portal-desc {
-      font-size: 11.5px;
-      color: var(--text-tertiary);
-      line-height: 1.3;
-    }
-
-    /* ─── BOTTOM GRID ────────────────────────────────────── */
-    .bottom-grid {
-      display: grid;
-      grid-template-columns: 340px 1fr;
-      gap: 16px;
-      animation: fadeUp 0.5s ease 0.22s forwards;
-      opacity: 0;
-    }
-
-    /* ─── CLOCK CARD ─────────────────────────────────────── */
-    .clock-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-
-    .clock-label {
-      font-size: 10.5px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--text-tertiary);
-      margin-bottom: 16px;
-    }
-
-    .clock-time-display {
-      font-family: var(--font-mono);
-      font-size: 42px;
-      font-weight: 400;
-      letter-spacing: -0.03em;
-      line-height: 1;
-      margin-bottom: 4px;
-    }
-
-    .clock-period {
-      font-family: var(--font-mono);
-      font-size: 14px;
-      color: var(--text-tertiary);
-      letter-spacing: 0.04em;
-    }
-
-    .clock-shift-info {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 14px;
-      padding: 8px 14px;
-      background: var(--surface-muted);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-    }
-
-    .clock-shift-icon {
-      color: var(--text-tertiary);
-    }
-
-    .clock-shift-icon svg {
-      width: 14px; height: 14px;
-    }
-
-    .clock-shift-text {
-      font-size: 12px;
-      color: var(--text-secondary);
-      font-weight: 450;
-    }
-
-    .clock-shift-text strong {
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .clock-timezone {
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      color: var(--text-tertiary);
-      margin-top: 10px;
-    }
-
-    .clock-divider {
-      width: 48px; height: 1px;
-      background: var(--border);
-      margin: 18px 0;
-    }
-
-    .clock-status {
-      font-size: 12.5px;
-      color: var(--text-secondary);
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .clock-status-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: var(--warning);
-    }
-
-    .clock-action-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      width: 100%;
-      padding: 11px 20px;
-      background: var(--accent);
-      color: var(--text-inverse);
-      border: none;
-      border-radius: var(--radius-sm);
-      font-family: var(--font-sans);
-      font-size: 13.5px;
-      font-weight: 550;
-      cursor: pointer;
-      transition: all var(--transition-fast);
-    }
-
-    .clock-action-btn:hover {
-      background: var(--accent-hover);
-      transform: translateY(-1px);
-      box-shadow: 0 3px 12px rgba(44,95,74,0.25);
-    }
-
-    .clock-action-btn svg {
-      width: 15px; height: 15px;
-    }
-
-    /* ─── QUICK ACTIONS ──────────────────────────────────── */
-    .actions-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 22px 24px;
-    }
-
-    .actions-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
-
-    .actions-title {
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-    }
-
-    .actions-subtitle {
-      font-size: 12px;
       color: var(--text-tertiary);
     }
 
@@ -790,185 +681,278 @@
       color: var(--accent-hover);
     }
 
-    .actions-grid {
+    .module-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      grid-template-columns: repeat(3,1fr);
+      gap: 12px;
+      animation: fadeUp 0.5s ease 0.18s forwards;
+      opacity: 0;
     }
 
-    .action-item {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 14px 16px;
-      background: var(--surface-muted);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
+    .module-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px;
       cursor: pointer;
       transition: all var(--transition-base);
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
 
-    .action-item:hover {
-      background: var(--surface);
-      border-color: var(--border);
-      box-shadow: var(--shadow-sm);
-      transform: translateY(-1px);
+    .module-card:hover {
+      border-color: var(--accent-muted);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
     }
 
-    .action-icon {
-      width: 40px; height: 40px;
-      border-radius: var(--radius-sm);
+    .module-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
+      transition: all var(--transition-base);
     }
 
-    .action-icon svg {
-      width: 19px; height: 19px;
+    .module-icon svg {
+      width: 22px;
+      height: 22px;
     }
 
-    .action-icon.teal { background: var(--accent-light); color: var(--accent); }
-    .action-icon.blue { background: var(--info-bg); color: var(--info); }
-    .action-icon.amber { background: var(--warning-bg); color: var(--warning); }
-    .action-icon.purple { background: var(--purple-bg); color: var(--purple); }
-    .action-icon.green { background: var(--positive-bg); color: var(--positive); }
-    .action-icon.rose { background: var(--rose-bg); color: var(--rose); }
+    .module-card:hover .module-icon.teal { background: var(--accent); color: var(--text-inverse); }
+    .module-card:hover .module-icon.blue { background: var(--info); color: var(--text-inverse); }
+    .module-card:hover .module-icon.amber { background: var(--warning); color: var(--text-inverse); }
+    .module-card:hover .module-icon.purple { background: var(--purple); color: var(--text-inverse); }
+    .module-card:hover .module-icon.rose { background: var(--rose); color: var(--text-inverse); }
+    .module-card:hover .module-icon.green { background: var(--positive); color: var(--text-inverse); }
 
-    .action-info {
-      display: flex;
-      flex-direction: column;
-    }
+    .module-icon.teal { background: var(--accent-light); color: var(--accent); }
+    .module-icon.blue { background: var(--info-bg); color: var(--info); }
+    .module-icon.amber { background: var(--warning-bg); color: var(--warning); }
+    .module-icon.purple { background: var(--purple-bg); color: var(--purple); }
+    .module-icon.rose { background: var(--rose-bg); color: var(--rose); }
+    .module-icon.green { background: var(--positive-bg); color: var(--positive); }
 
-    .action-name {
-      font-size: 13px;
-      font-weight: 550;
+    .module-title {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
       line-height: 1.2;
     }
 
-    .action-desc {
-      font-size: 11.5px;
+    .module-desc {
+      font-size: 12.5px;
       color: var(--text-tertiary);
-      line-height: 1.3;
+      line-height: 1.45;
     }
 
-    .action-arrow {
-      margin-left: auto;
+    .module-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .module-stat {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-secondary);
+    }
+
+    .module-arrow {
       color: var(--text-tertiary);
       transition: all var(--transition-fast);
     }
 
-    .action-arrow svg {
-      width: 14px; height: 14px;
+    .module-arrow svg {
+      width: 14px;
+      height: 14px;
     }
 
-    .action-item:hover .action-arrow {
+    .module-card:hover .module-arrow {
       color: var(--accent);
-      transform: translateX(2px);
+      transform: translateX(3px);
     }
 
-    /* ─── ANIMATIONS ─────────────────────────────────────── */
+    /* ─── OVERLAY ──────────────────────────────────────── */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(26,24,22,0.3);
+      z-index: 90;
+      backdrop-filter: blur(2px);
+    }
+
+    /* ─── ANIMATIONS ───────────────────────────────────── */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(14px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* ─── RESPONSIVE ─────────────────────────────────────── */
+    /* ─── RESPONSIVE ───────────────────────────────────── */
     @media (max-width: 1100px) {
-      .kpi-grid { grid-template-columns: repeat(2,1fr); }
-      .portals-grid { grid-template-columns: repeat(2,1fr); }
-      .bottom-grid { grid-template-columns: 1fr; }
-      .actions-grid { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: repeat(2,1fr); }
+      .module-grid { grid-template-columns: repeat(2,1fr); }
     }
 
     @media (max-width: 900px) {
       .sidebar {
-        width: 64px;
-        padding: 16px 8px;
+        transform: translateX(-100%);
+        width: 268px;
+        box-shadow: var(--shadow-lg);
       }
-      .sidebar-brand-text,
-      .sidebar-link span,
-      .sidebar-section-label,
-      .sidebar-user-info { display: none; }
-      .sidebar-brand { justify-content: center; padding: 0 0 16px; }
-      .sidebar-link { justify-content: center; padding: 10px; }
-      .sidebar-user { justify-content: center; }
-      .main-content { margin-left: 64px; }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sidebar-overlay.open {
+        display: block;
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .topbar-menu-toggle {
+        display: flex;
+      }
+
       .page { padding: 20px; }
+
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .module-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      .stats-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <div class="app-shell">
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
+    <!-- Overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ─── SIDEBAR ──────────────────────────────────── -->
+    <aside class="sidebar" id="sidebar">
       <a href="/dashboard" class="sidebar-brand">
-        <div class="sidebar-brand-mark">N</div>
+        <div class="sidebar-brand-mark">
+          <span class="sidebar-brand-letter">N</span>
+        </div>
         <div class="sidebar-brand-text">
           <span class="sidebar-brand-name">Neoteric</span>
-          <span class="sidebar-brand-label">EMS Platform</span>
+          <div class="sidebar-brand-sub">
+            <span class="sidebar-brand-label">Digital</span>
+            <span class="sidebar-brand-dot"></span>
+            <span class="sidebar-brand-type">EMS</span>
+          </div>
         </div>
       </a>
 
       <nav class="sidebar-nav">
-        <div class="sidebar-section-label">Overview</div>
-        <a href="/dashboard" class="sidebar-link active">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-          <span>Dashboard</span>
-        </a>
-        <a href="/employees" class="sidebar-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          <span>Employees</span>
-        </a>
-        <div class="sidebar-section-label">Operations</div>
-        <a href="/payroll" class="sidebar-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 15h0M2 9.5h20"/></svg>
-          <span>Payroll</span>
-        </a>
-        <a href="/attendance" class="sidebar-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <span>Calendar</span>
-        </a>
-        <a href="/performance" class="sidebar-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-          <span>Performance</span>
-        </a>
-        <a href="/organization/departments" class="sidebar-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          <span>Documents</span>
-        </a>
-        <div class="sidebar-section-label">Tools</div>
-        <a href="/ai-assistant" class="sidebar-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><line x1="9" y1="21" x2="15" y2="21"/></svg>
-          <span>AI Assistant</span>
-        </a>
-        <a href="/admin/audit-logs" class="sidebar-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-          <span>Audit Trail</span>
-        </a>
-        <a href="/settings" class="sidebar-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          <span>Settings</span>
-        </a>
+
+        <!-- Overview -->
+        <div class="nav-section">
+          <div class="nav-section-label">Overview</div>
+          <a href="/dashboard" class="nav-link active" data-page="dashboard">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <!-- People -->
+        <div class="nav-section">
+          <div class="nav-section-label">People</div>
+          <a href="/employees" class="nav-link" data-page="employees">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Employees</span>
+            <span class="nav-badge">4</span>
+          </a>
+          <a href="/organization/departments" class="nav-link" data-page="departments">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="6" height="13" rx="1"/><rect x="9" y="3" width="6" height="17" rx="1"/><rect x="16" y="10" width="6" height="10" rx="1"/></svg>
+            <span>Departments</span>
+          </a>
+        </div>
+
+        <!-- Operations -->
+        <div class="nav-section">
+          <div class="nav-section-label">Operations</div>
+          <a href="/attendance" class="nav-link" data-page="attendance">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>Attendance</span>
+          </a>
+          <a href="/leaves" class="nav-link" data-page="leaves">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span>Leaves</span>
+            <span class="nav-badge warning">1</span>
+          </a>
+          <a href="/payroll" class="nav-link" data-page="payroll">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <span>Payroll</span>
+          </a>
+        </div>
+
+        <!-- Strategy -->
+        <div class="nav-section">
+          <div class="nav-section-label">Strategy</div>
+          <a href="/performance" class="nav-link" data-page="performance">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span>Performance</span>
+          </a>
+        </div>
+
+        <div class="nav-divider"></div>
+
+        <!-- Tools -->
+        <div class="nav-section">
+          <div class="nav-section-label">Tools</div>
+          <a href="/ai-assistant" class="nav-link" data-page="ai-assistant">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><line x1="9" y1="21" x2="15" y2="21"/></svg>
+            <span>AI Assistant</span>
+          </a>
+          <a href="/admin/audit-logs" class="nav-link" data-page="audit-trail">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            <span>Audit Trail</span>
+          </a>
+        </div>
       </nav>
 
+      <!-- User Footer -->
       <div class="sidebar-footer">
-        <div class="sidebar-user">
-          <div class="sidebar-avatar">SA</div>
-          <div class="sidebar-user-info">
-            <span class="sidebar-user-name">System Admin</span>
-            <span class="sidebar-user-role">SUPER_ADMIN</span>
+        <div class="user-card" id="userCard">
+          <div class="user-avatar">SA</div>
+          <div class="user-info">
+            <span class="user-name">System Administrator</span>
+            <div class="user-meta">
+              <span class="user-role">SUPER_ADMIN</span>
+              <span class="user-status">Online</span>
+            </div>
           </div>
+          <button class="user-menu-btn" title="User menu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+          </button>
         </div>
       </div>
     </aside>
 
-    <!-- MAIN -->
+    <!-- ─── MAIN ─────────────────────────────────────── -->
     <main class="main-content">
 
       <header class="topbar">
         <div class="topbar-left">
+          <button class="topbar-menu-toggle" id="menuToggle" title="Toggle sidebar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
           <div class="topbar-breadcrumb">
             <span>Overview</span>
             <span class="topbar-breadcrumb-sep">/</span>
@@ -978,7 +962,7 @@
         <div class="topbar-right">
           <div class="topbar-clock">
             <span class="topbar-clock-dot"></span>
-            <span id="topbarTime">11:23:58 AM</span>
+            <span id="topbarTime">--:--:-- --</span>
             <span style="color:var(--text-tertiary)">Dhaka</span>
           </div>
           <div class="topbar-divider"></div>
@@ -989,226 +973,189 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             <span class="topbar-btn-badge"></span>
           </button>
-          <div class="topbar-divider"></div>
-          <button class="quick-clock-btn" id="topbarClockBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            Quick Clock In
-          </button>
         </div>
       </header>
 
       <div class="page">
 
-        <!-- Welcome -->
-        <div class="welcome-section">
-          <div class="welcome-row">
-            <div>
-              <h1 class="welcome-greeting">Welcome back, System</h1>
-              <p class="welcome-subtitle">Neoteric Digital EMS — All enterprise operations active and nominal.</p>
-            </div>
-            <div class="welcome-meta">
-              <span class="welcome-tag">
-                <span class="welcome-tag-dot"></span>
-                Live Platform
-              </span>
-              <span class="welcome-date" id="welcomeDate">Mon, 15 Sep 2026</span>
-            </div>
-          </div>
+        <div class="page-header">
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-subtitle">Neoteric Digital EMS — All enterprise operations active and nominal.</p>
         </div>
 
-        <!-- KPIs -->
-        <div class="kpi-grid">
-          <div class="kpi-card">
-            <div class="kpi-header">
-              <div class="kpi-icon green">
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon teal">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
               </div>
-              <span class="kpi-trend up">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+              <span class="stat-trend">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12" />
+                </svg>
                 +12%
               </span>
             </div>
-            <div class="kpi-value">4</div>
-            <div class="kpi-label">Total Headcount</div>
-            <div class="kpi-context">Active workforce members</div>
+            <div class="stat-value">4</div>
+            <div class="stat-label">Total Headcount</div>
+            <div class="stat-context">Active workforce members</div>
           </div>
-          <div class="kpi-card">
-            <div class="kpi-header">
-              <div class="kpi-icon blue">
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon blue">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
               </div>
-              <span class="kpi-trend up">
+              <span class="stat-trend">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
                 +3.1%
               </span>
             </div>
-            <div class="kpi-value">96.2<span class="kpi-unit">%</span></div>
-            <div class="kpi-label">Attendance Today</div>
-            <div class="kpi-context">On-time shift arrival rate</div>
+            <div class="stat-value">96.2%</div>
+            <div class="stat-label">Attendance Rate</div>
+            <div class="stat-context">On-time shift arrival</div>
           </div>
-          <div class="kpi-card">
-            <div class="kpi-header">
-              <div class="kpi-icon amber">
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon amber">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
               </div>
-              <span class="kpi-trend neutral">On schedule</span>
+              <span class="stat-trend" style="background:var(--surface-muted);color:var(--text-tertiary)">On schedule</span>
             </div>
-            <div class="kpi-value">0</div>
-            <div class="kpi-label">Pending Leaves</div>
-            <div class="kpi-context">Awaiting manager approval</div>
+            <div class="stat-value">0</div>
+            <div class="stat-label">Pending Leaves</div>
+            <div class="stat-context">Awaiting manager approval</div>
           </div>
-          <div class="kpi-card">
-            <div class="kpi-header">
-              <div class="kpi-icon purple">
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon purple">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
               </div>
-              <span class="kpi-trend up">On time</span>
+              <span class="stat-trend">On time</span>
             </div>
-            <div class="kpi-value"><span class="kpi-unit">BDT</span> 38K</div>
-            <div class="kpi-label">Monthly Payroll</div>
-            <div class="kpi-context">Approved (Aug)</div>
+            <div class="stat-value">BDT 38K</div>
+            <div class="stat-label">Monthly Payroll</div>
+            <div class="stat-context">Approved (Aug)</div>
           </div>
         </div>
 
-        <!-- Modules -->
+        <!-- Module Grid -->
         <div class="section-header">
-          <span class="section-title">Modules</span>
+          <span class="section-title">System Modules</span>
+          <span class="section-link">Customize layout</span>
         </div>
-        <div class="portals-grid">
-          <a href="/payroll" class="portal-tile">
-            <div class="portal-icon">
+        <div class="module-grid">
+
+          <a href="/employees" class="module-card">
+            <div class="module-icon teal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div>
+              <div class="module-title">Employees</div>
+              <div class="module-desc">Manage employee profiles, roles, departments, and organizational structure.</div>
+            </div>
+            <div class="module-footer">
+              <span class="module-stat">4 active members</span>
+              <span class="module-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </div>
+          </a>
+
+          <a href="/organization/departments" class="module-card">
+            <div class="module-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="6" height="13" rx="1"/><rect x="9" y="3" width="6" height="17" rx="1"/><rect x="16" y="10" width="6" height="10" rx="1"/></svg>
+            </div>
+            <div>
+              <div class="module-title">Departments</div>
+              <div class="module-desc">Organizational units, team structures, reporting hierarchies, and headcount allocation.</div>
+            </div>
+            <div class="module-footer">
+              <span class="module-stat">Structures & org chart</span>
+              <span class="module-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </div>
+          </a>
+
+          <a href="/attendance" class="module-card">
+            <div class="module-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div>
+              <div class="module-title">Attendance</div>
+              <div class="module-desc">Daily clock-in/out tracking, shift management, overtime calculations, and attendance reports.</div>
+            </div>
+            <div class="module-footer">
+              <span class="module-stat">96.2% today</span>
+              <span class="module-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </div>
+          </a>
+
+          <a href="/leaves" class="module-card">
+            <div class="module-icon amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div>
+              <div class="module-title">Leaves</div>
+              <div class="module-desc">Leave applications, approval workflows, balance tracking, and leave policy management.</div>
+            </div>
+            <div class="module-footer">
+              <span class="module-stat">0 pending approvals</span>
+              <span class="module-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </div>
+          </a>
+
+          <a href="/payroll" class="module-card">
+            <div class="module-icon purple">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             </div>
-            <div class="portal-info">
-              <span class="portal-name">Payroll</span>
-              <span class="portal-desc">Payslips & disbursement</span>
+            <div>
+              <div class="module-title">Payroll</div>
+              <div class="module-desc">Salary processing, deductions, payslip generation, and disbursement tracking.</div>
+            </div>
+            <div class="module-footer">
+              <span class="module-stat">BDT 38K approved</span>
+              <span class="module-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
             </div>
           </a>
-          <a href="/performance" class="portal-tile">
-            <div class="portal-icon">
+
+          <a href="/performance" class="module-card">
+            <div class="module-icon teal">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
             </div>
-            <div class="portal-info">
-              <span class="portal-name">Performance</span>
-              <span class="portal-desc">Reviews & goal tracking</span>
+            <div>
+              <div class="module-title">Performance</div>
+              <div class="module-desc">Goal setting, review cycles, competency assessments, and development planning.</div>
+            </div>
+            <div class="module-footer">
+              <span class="module-stat">Reviews & tracking</span>
+              <span class="module-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
             </div>
           </a>
-          <a href="/ai-assistant" class="portal-tile">
-            <div class="portal-icon">
+
+          <a href="/ai-assistant" class="module-card">
+            <div class="module-icon rose">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><line x1="9" y1="21" x2="15" y2="21"/></svg>
             </div>
-            <div class="portal-info">
-              <span class="portal-name">AI Assistant</span>
-              <span class="portal-desc">Generate & summarize</span>
+            <div>
+              <div class="module-title">AI Assistant</div>
+              <div class="module-desc">Generate documents, summarize data, draft policies, and get intelligent workforce insights.</div>
+            </div>
+            <div class="module-footer">
+              <span class="module-stat">Powered by Gemini</span>
+              <span class="module-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
             </div>
           </a>
-          <a href="/admin/audit-logs" class="portal-tile">
-            <div class="portal-icon">
+
+          <a href="/admin/audit-logs" class="module-card">
+            <div class="module-icon amber">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
             </div>
-            <div class="portal-info">
-              <span class="portal-name">Audit Trail</span>
-              <span class="portal-desc">Activity logs & compliance</span>
+            <div>
+              <div class="module-title">Audit Trail</div>
+              <div class="module-desc">System activity logs, compliance tracking, user action history, and security audit records.</div>
+            </div>
+            <div class="module-footer">
+              <span class="module-stat">Full activity log</span>
+              <span class="module-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
             </div>
           </a>
-        </div>
-
-        <!-- Bottom: Clock + Quick Actions -->
-        <div class="bottom-grid">
-
-          <div class="clock-card">
-            <span class="clock-label">Daily Time Clock</span>
-            <div class="clock-time-display" id="clockTime">11:23</div>
-            <div class="clock-period" id="clockPeriod">11 AM</div>
-            <div class="clock-shift-info">
-              <span class="clock-shift-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              </span>
-              <span class="clock-shift-text">Shift: <strong>09:00 – 18:00</strong></span>
-            </div>
-            <span class="clock-timezone">Asia/Dhaka (UTC+6:00)</span>
-            <div class="clock-divider"></div>
-            <div class="clock-status">
-              <span class="clock-status-dot"></span>
-              Ready to begin your working hours
-            </div>
-            <button class="clock-action-btn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              Clock In for Today
-            </button>
-          </div>
-
-          <div class="actions-card">
-            <div class="actions-header">
-              <div>
-                <div class="actions-title">Quick Actions</div>
-                <div class="actions-subtitle">Common workforce management tasks</div>
-              </div>
-              <span class="section-link">View all</span>
-            </div>
-            <div class="actions-grid">
-              <a href="/employees" class="action-item">
-                <div class="action-icon teal">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                </div>
-                <div class="action-info">
-                  <span class="action-name">Employee Directory</span>
-                  <span class="action-desc">Profiles & org structure</span>
-                </div>
-                <span class="action-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-              </a>
-              <a href="/leaves" class="action-item">
-                <div class="action-icon blue">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                </div>
-                <div class="action-info">
-                  <span class="action-name">Leave Requests</span>
-                  <span class="action-desc">Apply & approve leaves</span>
-                </div>
-                <span class="action-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-              </a>
-              <a href="/payroll" class="action-item">
-                <div class="action-icon amber">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                </div>
-                <div class="action-info">
-                  <span class="action-name">Generate Payslip</span>
-                  <span class="action-desc">Create & distribute</span>
-                </div>
-                <span class="action-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-              </a>
-              <a href="/performance" class="action-item">
-                <div class="action-icon purple">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                </div>
-                <div class="action-info">
-                  <span class="action-name">Run Review Cycle</span>
-                  <span class="action-desc">Initiate evaluations</span>
-                </div>
-                <span class="action-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-              </a>
-              <a href="/organization/departments" class="action-item">
-                <div class="action-icon green">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                </div>
-                <div class="action-info">
-                  <span class="action-name">Upload Document</span>
-                  <span class="action-desc">Policies & contracts</span>
-                </div>
-                <span class="action-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-              </a>
-              <a href="/admin/audit-logs" class="action-item">
-                <div class="action-icon rose">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                </div>
-                <div class="action-info">
-                  <span class="action-name">View Audit Log</span>
-                  <span class="action-desc">System activity trail</span>
-                </div>
-                <span class="action-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-              </a>
-            </div>
-          </div>
 
         </div>
       </div>
@@ -1216,17 +1163,34 @@
   </div>
 
   <script>
+    // ─── Clock ─────────────────────────────────────────
     function updateClock() {
       const now = new Date();
-      const fmt = (opts) => new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Dhaka', ...opts }).format(now);
-
-      document.getElementById('topbarTime').textContent = fmt({ hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true });
-      document.getElementById('clockTime').textContent = fmt({ hour:'2-digit', minute:'2-digit', hour12:false });
-      document.getElementById('clockPeriod').textContent = fmt({ hour:'numeric', hour12:true });
-      document.getElementById('welcomeDate').textContent = fmt({ weekday:'short', day:'numeric', month:'short', year:'numeric' });
+      const time = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Dhaka',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+      }).format(now);
+      document.getElementById('topbarTime').textContent = time;
     }
     updateClock();
     setInterval(updateClock, 1000);
+
+    // ─── Sidebar toggle (mobile) ──────────────────────
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const toggle = document.getElementById('menuToggle');
+
+    if (toggle && sidebar && overlay) {
+      toggle.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('open');
+      });
+
+      overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+      });
+    }
   </script>
 </body>
 </html>

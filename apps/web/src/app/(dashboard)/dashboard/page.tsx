@@ -202,61 +202,183 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Module / Portal Tiles */}
+          {/* System Modules Grid */}
           <div className="section-header">
-            <span className="section-title">Modules</span>
+            <span className="section-title">System Modules</span>
+            <Link href="/employees" className="section-link">View all modules</Link>
           </div>
-          <div className="portals-grid">
-            <Link href="/payroll" className="portal-tile">
-              <div className="portal-icon">
+          <div className="module-grid">
+            <Link href="/employees" className="module-card">
+              <div className="module-icon teal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+              </div>
+              <div>
+                <div className="module-title">Employees</div>
+                <div className="module-desc">Manage employee profiles, roles, departments, and organizational structure.</div>
+              </div>
+              <div className="module-footer">
+                <span className="module-stat">{stats.headcount} active members</span>
+                <span className="module-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </span>
+              </div>
+            </Link>
+
+            <Link href="/organization/departments" className="module-card">
+              <div className="module-icon blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="7" width="6" height="13" rx="1" />
+                  <rect x="9" y="3" width="6" height="17" rx="1" />
+                  <rect x="16" y="10" width="6" height="10" rx="1" />
+                </svg>
+              </div>
+              <div>
+                <div className="module-title">Departments</div>
+                <div className="module-desc">Organizational units, team structures, reporting hierarchies, and headcount allocation.</div>
+              </div>
+              <div className="module-footer">
+                <span className="module-stat">Structures & org chart</span>
+                <span className="module-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </span>
+              </div>
+            </Link>
+
+            <Link href="/attendance" className="module-card">
+              <div className="module-icon green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+              </div>
+              <div>
+                <div className="module-title">Attendance</div>
+                <div className="module-desc">Daily clock-in/out tracking, shift management, overtime calculations, and attendance reports.</div>
+              </div>
+              <div className="module-footer">
+                <span className="module-stat">{stats.attendanceRate}% today</span>
+                <span className="module-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </span>
+              </div>
+            </Link>
+
+            <Link href="/leaves" className="module-card">
+              <div className="module-icon amber">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+              </div>
+              <div>
+                <div className="module-title">Leaves</div>
+                <div className="module-desc">Leave applications, approval workflows, balance tracking, and leave policy management.</div>
+              </div>
+              <div className="module-footer">
+                <span className="module-stat">{stats.pendingLeaves} pending approvals</span>
+                <span className="module-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </span>
+              </div>
+            </Link>
+
+            <Link href="/payroll" className="module-card">
+              <div className="module-icon purple">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="12" y1="1" x2="12" y2="23" />
                   <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                 </svg>
               </div>
-              <div className="portal-info">
-                <span className="portal-name">Payroll</span>
-                <span className="portal-desc">Payslips & disbursement</span>
+              <div>
+                <div className="module-title">Payroll</div>
+                <div className="module-desc">Salary processing, deductions, payslip generation, and disbursement tracking.</div>
+              </div>
+              <div className="module-footer">
+                <span className="module-stat">BDT {stats.monthlyPayroll} approved</span>
+                <span className="module-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </span>
               </div>
             </Link>
 
-            <Link href="/performance" className="portal-tile">
-              <div className="portal-icon">
+            <Link href="/performance" className="module-card">
+              <div className="module-icon teal">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="20" x2="18" y2="10" />
                   <line x1="12" y1="20" x2="12" y2="4" />
                   <line x1="6" y1="20" x2="6" y2="14" />
                 </svg>
               </div>
-              <div className="portal-info">
-                <span className="portal-name">Performance</span>
-                <span className="portal-desc">Reviews & goal tracking</span>
+              <div>
+                <div className="module-title">Performance</div>
+                <div className="module-desc">Goal setting, review cycles, competency assessments, and development planning.</div>
+              </div>
+              <div className="module-footer">
+                <span className="module-stat">Reviews & tracking</span>
+                <span className="module-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </span>
               </div>
             </Link>
 
-            <Link href="/ai-assistant" className="portal-tile">
-              <div className="portal-icon">
+            <Link href="/ai-assistant" className="module-card">
+              <div className="module-icon rose">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z" />
                   <line x1="9" y1="21" x2="15" y2="21" />
                 </svg>
               </div>
-              <div className="portal-info">
-                <span className="portal-name">AI Assistant</span>
-                <span className="portal-desc">Generate & summarize</span>
+              <div>
+                <div className="module-title">AI Assistant</div>
+                <div className="module-desc">Generate documents, summarize data, draft policies, and get intelligent workforce insights.</div>
+              </div>
+              <div className="module-footer">
+                <span className="module-stat">Powered by Gemini & Groq</span>
+                <span className="module-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </span>
               </div>
             </Link>
 
-            <Link href="/admin/audit-logs" className="portal-tile">
-              <div className="portal-icon">
+            <Link href="/admin/audit-logs" className="module-card">
+              <div className="module-icon amber">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 20h9" />
                   <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
                 </svg>
               </div>
-              <div className="portal-info">
-                <span className="portal-name">Audit Trail</span>
-                <span className="portal-desc">Activity logs & compliance</span>
+              <div>
+                <div className="module-title">Audit Trail</div>
+                <div className="module-desc">System activity logs, compliance tracking, user action history, and security audit records.</div>
+              </div>
+              <div className="module-footer">
+                <span className="module-stat">Full activity log</span>
+                <span className="module-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </span>
               </div>
             </Link>
           </div>
