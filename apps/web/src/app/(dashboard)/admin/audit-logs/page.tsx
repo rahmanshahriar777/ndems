@@ -299,18 +299,22 @@ export default function AuditLogsPage() {
             {/* Quick 4-stat cards */}
             <div className="audit-quick-stats">
               <div className="audit-quick-stat-card">
-                <div className="audit-stat-label">
-                  <Database size={13} />
-                  <span>Logged Events</span>
+                <div className="audit-stat-header">
+                  <span className="audit-stat-label">Logged Events</span>
+                  <div className="audit-stat-icon-wrap">
+                    <Database size={15} />
+                  </div>
                 </div>
                 <div className="audit-stat-value">{totalEvents}</div>
                 <div className="audit-stat-caption">Forensic state transitions</div>
               </div>
 
               <div className="audit-quick-stat-card">
-                <div className="audit-stat-label">
-                  <Fingerprint size={13} />
-                  <span>Ledger Integrity</span>
+                <div className="audit-stat-header">
+                  <span className="audit-stat-label">Ledger Integrity</span>
+                  <div className="audit-stat-icon-wrap">
+                    <Fingerprint size={15} />
+                  </div>
                 </div>
                 <div className="audit-stat-value" style={{ color: 'var(--audit-positive)' }}>
                   100% SHA-256
@@ -319,18 +323,22 @@ export default function AuditLogsPage() {
               </div>
 
               <div className="audit-quick-stat-card">
-                <div className="audit-stat-label">
-                  <User size={13} />
-                  <span>Privileged Actors</span>
+                <div className="audit-stat-header">
+                  <span className="audit-stat-label">Privileged Actors</span>
+                  <div className="audit-stat-icon-wrap">
+                    <User size={15} />
+                  </div>
                 </div>
                 <div className="audit-stat-value">{privilegedOperators}</div>
                 <div className="audit-stat-caption">Active security principals</div>
               </div>
 
               <div className="audit-quick-stat-card">
-                <div className="audit-stat-label">
-                  <ShieldCheck size={13} />
-                  <span>Compliance Standing</span>
+                <div className="audit-stat-header">
+                  <span className="audit-stat-label">Compliance Standing</span>
+                  <div className="audit-stat-icon-wrap">
+                    <ShieldCheck size={15} />
+                  </div>
                 </div>
                 <div className="audit-stat-value" style={{ color: 'var(--audit-accent)' }}>
                   Nominal
