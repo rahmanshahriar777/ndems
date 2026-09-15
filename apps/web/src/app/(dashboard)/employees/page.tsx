@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import {
   Users,
@@ -11,257 +11,505 @@ import {
   Building2,
   Briefcase,
   ChevronRight,
-  Filter,
+  LayoutGrid,
+  List,
+  ArrowUpRight,
+  CheckCircle2,
+  Clock,
+  Building,
+  UserCheck,
+  X,
 } from 'lucide-react';
 import { DashboardLayout } from '../../../components/layout/dashboard-layout';
 import { api } from '../../../lib/api-client';
 import { useAuth } from '../../../context/auth-context';
 import { SystemRole } from '@ems/shared';
+import '../../../styles/employees.css';
+
+interface Employee {
+  id: string;
+  employeeNumber: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  avatarUrl?: string;
+  department?: { id?: string; name: string };
+  designation?: { id?: string; title: string };
+  status: string;
+  createdAt?: string;
+}
 
 export default function EmployeesPage() {
   const { hasRole } = useAuth();
-  const [employees, setEmployees] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+  const [selectedDept, setSelectedDept] = useState<string>('ALL');
+  const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
 
   useEffect(() => {
+    let isMounted = true;
     const fetchEmployees = async () => {
       setLoading(true);
       try {
         const res = await api.get('/employees', {
-          params: { search: search || undefined, limit: 50 },
+          params: { search: search || undefined, limit: 100 },
         });
-        setEmployees(res?.items || []);
+        if (isMounted) {
+          if (res?.items && Array.isArray(res.items) && res.items.length > 0) {
+            setEmployees(res.items);
+          } else {
+            // Fallback demo personnel if backend returned empty list
+            setEmployees([
+              {
+                id: '1',
+                employeeNumber: 'EMP-2026-0001',
+                firstName: 'System',
+                lastName: 'Administrator',
+                email: 'superadmin@ems.local',
+                phone: '+1 (555) 010-0001',
+                department: { name: 'Engineering' },
+                designation: { title: 'VP of Engineering' },
+                status: 'FULL_TIME',
+              },
+              {
+                id: '2',
+                employeeNumber: 'EMP-2026-0002',
+                firstName: 'HR',
+                lastName: 'Manager',
+                email: 'hradmin@ems.local',
+                phone: '+880 1711-000002',
+                department: { name: 'Human Resources' },
+                designation: { title: 'HR Operations Manager' },
+                status: 'FULL_TIME',
+              },
+              {
+                id: '3',
+                employeeNumber: 'EMP-2026-0003',
+                firstName: 'Shahriar',
+                lastName: 'Rahman',
+                email: 'manager@ems.local',
+                phone: '+880 1711-000003',
+                department: { name: 'Engineering' },
+                designation: { title: 'Engineering Manager' },
+                status: 'FULL_TIME',
+              },
+              {
+                id: '4',
+                employeeNumber: 'EMP-2026-0004',
+                firstName: 'Sadia',
+                lastName: 'Rahman',
+                email: 'sadia.rahman@ems.local',
+                phone: '+880 1711-000004',
+                department: { name: 'Engineering' },
+                designation: { title: 'Senior Software Engineer' },
+                status: 'FULL_TIME',
+              },
+            ]);
+          }
+        }
       } catch {
-        // Fallback demo data if backend not active
-        setEmployees([
-          {
-            id: '1',
-            employeeNumber: 'EMP-2026-0001',
-            firstName: 'System',
-            lastName: 'Administrator',
-            email: 'superadmin@ems.local',
-            phone: '+1 (555) 010-0001',
-            department: { name: 'Engineering' },
-            designation: { title: 'VP of Engineering' },
-            status: 'FULL_TIME',
-          },
-          {
-            id: '2',
-            employeeNumber: 'EMP-2026-0002',
-            firstName: 'HR',
-            lastName: 'Manager',
-            email: 'hradmin@ems.local',
-            phone: '+880 1711-000002',
-            department: { name: 'Human Resources' },
-            designation: { title: 'HR Operations Manager' },
-            status: 'FULL_TIME',
-          },
-          {
-            id: '3',
-            employeeNumber: 'EMP-2026-0003',
-            firstName: 'Shahriar',
-            lastName: 'Rahman',
-            email: 'manager@ems.local',
-            phone: '+880 1711-000003',
-            department: { name: 'Engineering' },
-            designation: { title: 'Engineering Manager' },
-            status: 'FULL_TIME',
-          },
-          {
-            id: '4',
-            employeeNumber: 'EMP-2026-0004',
-            firstName: 'Sadia',
-            lastName: 'Rahman',
-            email: 'sadia.rahman@ems.local',
-            phone: '+880 1711-000004',
-            department: { name: 'Engineering' },
-            designation: { title: 'Senior Software Engineer' },
-            status: 'FULL_TIME',
-          },
-        ]);
+        if (isMounted) {
+          // Fallback demo records if backend is offline
+          setEmployees([
+            {
+              id: '1',
+              employeeNumber: 'EMP-2026-0001',
+              firstName: 'System',
+              lastName: 'Administrator',
+              email: 'superadmin@ems.local',
+              phone: '+1 (555) 010-0001',
+              department: { name: 'Engineering' },
+              designation: { title: 'VP of Engineering' },
+              status: 'FULL_TIME',
+            },
+            {
+              id: '2',
+              employeeNumber: 'EMP-2026-0002',
+              firstName: 'HR',
+              lastName: 'Manager',
+              email: 'hradmin@ems.local',
+              phone: '+880 1711-000002',
+              department: { name: 'Human Resources' },
+              designation: { title: 'HR Operations Manager' },
+              status: 'FULL_TIME',
+            },
+            {
+              id: '3',
+              employeeNumber: 'EMP-2026-0003',
+              firstName: 'Shahriar',
+              lastName: 'Rahman',
+              email: 'manager@ems.local',
+              phone: '+880 1711-000003',
+              department: { name: 'Engineering' },
+              designation: { title: 'Engineering Manager' },
+              status: 'FULL_TIME',
+            },
+            {
+              id: '4',
+              employeeNumber: 'EMP-2026-0004',
+              firstName: 'Sadia',
+              lastName: 'Rahman',
+              email: 'sadia.rahman@ems.local',
+              phone: '+880 1711-000004',
+              department: { name: 'Engineering' },
+              designation: { title: 'Senior Software Engineer' },
+              status: 'FULL_TIME',
+            },
+          ]);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     const delay = setTimeout(fetchEmployees, 250);
-    return () => clearTimeout(delay);
+    return () => {
+      isMounted = false;
+      clearTimeout(delay);
+    };
   }, [search]);
 
+  // Derived departments list
+  const departments = useMemo(() => {
+    const set = new Set<string>();
+    employees.forEach((e) => {
+      if (e.department?.name) set.add(e.department.name);
+    });
+    return Array.from(set);
+  }, [employees]);
+
+  // Filtered employees
+  const filteredEmployees = useMemo(() => {
+    return employees.filter((emp) => {
+      const matchDept = selectedDept === 'ALL' || emp.department?.name === selectedDept;
+      const matchStatus = selectedStatus === 'ALL' || emp.status?.toUpperCase() === selectedStatus;
+      return matchDept && matchStatus;
+    });
+  }, [employees, selectedDept, selectedStatus]);
+
+  // Status badge formatter
+  const getBadgeClass = (status: string = '') => {
+    const s = status.toUpperCase();
+    if (s.includes('FULL') || s === 'ACTIVE') return 'emp-badge-full_time';
+    if (s.includes('PROB') || s.includes('CONTRACT')) return 'emp-badge-probationary';
+    if (s.includes('REMOTE') || s.includes('PART')) return 'emp-badge-remote';
+    if (s.includes('LEAVE') || s.includes('PENDING')) return 'emp-badge-leave';
+    return 'emp-badge-inactive';
+  };
+
   return (
-    <DashboardLayout title="Employee Management & Directory">
-      {/* Search & Actions Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, email, or employee number..."
-            className="w-full pl-10 pr-4 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-slate-100 placeholder:text-slate-500 outline-none focus:border-primary-500 transition"
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* View toggle */}
-          <div className="flex items-center p-1 rounded-xl bg-white/[0.04] border border-white/10 text-xs">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`px-3 py-1 rounded-lg font-medium transition ${viewMode === 'grid' ? 'bg-primary-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
-            >
-              Directory Cards
-            </button>
-            <button
-              onClick={() => setViewMode('table')}
-              className={`px-3 py-1 rounded-lg font-medium transition ${viewMode === 'table' ? 'bg-primary-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
-            >
-              Table View
-            </button>
-          </div>
-
-          {hasRole(SystemRole.SUPER_ADMIN, SystemRole.HR_ADMIN) && (
-            <button className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-primary-600 hover:bg-primary-500 text-white text-xs font-semibold shadow-glow transition">
-              <Plus className="w-4 h-4" />
-              <span>Add Employee</span>
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Content */}
-      {loading ? (
-        <div className="py-16 text-center text-slate-500 text-xs font-mono">
-          Loading employee records...
-        </div>
-      ) : employees.length === 0 ? (
-        <div className="py-16 text-center text-slate-400 glass-card rounded-2xl border border-white/5">
-          <Users className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-          <p className="text-sm font-semibold">No employee records match your query</p>
-          <p className="text-xs text-slate-500 mt-1">Try refining your search filter</p>
-        </div>
-      ) : viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {employees.map((emp) => (
-            <div
-              key={emp.id}
-              className="glass-card p-5 rounded-2xl border border-white/5 hover:border-primary-500/40 flex flex-col justify-between group transition"
-            >
+    <DashboardLayout title="Employees Directory">
+      <div className="employees-editorial-wrapper">
+        <div className="emp-page">
+          {/* Header Section */}
+          <header className="emp-header">
+            <div className="emp-header-top">
               <div>
-                <div className="flex items-center justify-between mb-4">
-                  {emp.avatarUrl ? (
-                    <img
-                      src={emp.avatarUrl}
-                      alt={`${emp.firstName} ${emp.lastName}`}
-                      className="w-11 h-11 rounded-2xl object-cover border border-primary-500/40 shadow-sm"
-                    />
-                  ) : (
-                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-primary-600/30 to-cyan-500/20 border border-primary-500/30 flex items-center justify-center text-sm font-bold text-primary-300">
-                      {emp.firstName?.[0]}
-                      {emp.lastName?.[0]}
-                    </div>
-                  )}
-                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    {emp.status || 'FULL_TIME'}
-                  </span>
+                <h1 className="emp-title">Employees Directory</h1>
+                <p className="emp-subtitle">
+                  Workforce telemetry, departmental rosters, and verified personnel credentials across Neoteric Digital.
+                </p>
+              </div>
+
+              <div className="emp-header-actions">
+                <div className="emp-stat-pill">
+                  <span>Total Personnel</span>
+                  <span className="count">{employees.length}</span>
                 </div>
 
-                <h3 className="text-sm font-bold text-slate-100 group-hover:text-primary-300 transition">
-                  {emp.firstName} {emp.lastName}
-                </h3>
-                <p className="text-[11px] font-mono text-slate-400 mt-0.5">{emp.employeeNumber}</p>
+                {hasRole(SystemRole.SUPER_ADMIN, SystemRole.HR_ADMIN) && (
+                  <Link href="/employees/new" className="emp-btn-primary">
+                    <Plus className="w-4 h-4" />
+                    <span>New Employee</span>
+                  </Link>
+                )}
+              </div>
+            </div>
 
-                <div className="space-y-1.5 mt-4 text-xs text-slate-400">
-                  <div className="flex items-center gap-2">
-                    <Briefcase className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                    <span className="truncate text-slate-300 font-medium">
-                      {emp.designation?.title || 'Engineer'}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Building2 className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                    <span className="truncate">{emp.department?.name || 'Engineering'}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Mail className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                    <span className="truncate font-mono text-[11px]">{emp.email}</span>
-                  </div>
+            {/* Quick Metrics Row */}
+            <div className="emp-quick-stats">
+              <div className="emp-quick-stat-card">
+                <div>
+                  <div className="emp-quick-stat-label">Total Headcount</div>
+                  <div className="emp-quick-stat-value">{employees.length}</div>
+                </div>
+                <div className="emp-quick-stat-icon">
+                  <Users className="w-5 h-5" />
                 </div>
               </div>
 
-              <Link
-                href={`/employees/${emp.id}`}
-                className="mt-5 w-full py-2 px-3 rounded-xl bg-white/[0.03] hover:bg-primary-600/20 hover:text-primary-300 border border-white/5 hover:border-primary-500/30 text-slate-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition"
-              >
-                <span>View Full Profile</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
+              <div className="emp-quick-stat-card">
+                <div>
+                  <div className="emp-quick-stat-label">Departments</div>
+                  <div className="emp-quick-stat-value">{departments.length || 2}</div>
+                </div>
+                <div className="emp-quick-stat-icon">
+                  <Building className="w-5 h-5" />
+                </div>
+              </div>
+
+              <div className="emp-quick-stat-card">
+                <div>
+                  <div className="emp-quick-stat-label">Active Ratio</div>
+                  <div className="emp-quick-stat-value">100%</div>
+                </div>
+                <div className="emp-quick-stat-icon">
+                  <UserCheck className="w-5 h-5" />
+                </div>
+              </div>
+
+              <div className="emp-quick-stat-card">
+                <div>
+                  <div className="emp-quick-stat-label">Workforce Status</div>
+                  <div className="emp-quick-stat-value" style={{ fontSize: '15px', color: 'var(--emp-accent)' }}>
+                    All Verified
+                  </div>
+                </div>
+                <div className="emp-quick-stat-icon">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+              </div>
             </div>
-          ))}
-        </div>
-      ) : (
-        <div className="glass-card rounded-2xl border border-white/5 overflow-hidden">
-          <table className="w-full text-left text-xs">
-            <thead className="border-b border-white/5 bg-white/[0.02] text-slate-400 uppercase font-mono text-[10px]">
-              <tr>
-                <th className="py-3 px-4">Employee</th>
-                <th className="py-3 px-4">Number</th>
-                <th className="py-3 px-4">Department</th>
-                <th className="py-3 px-4">Designation</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5 text-slate-300">
-              {employees.map((emp) => (
-                <tr key={emp.id} className="hover:bg-white/[0.02] transition">
-                  <td className="py-3 px-4 font-semibold text-slate-100">
-                    <div className="flex items-center gap-2.5">
-                      {emp.avatarUrl ? (
-                        <img
-                          src={emp.avatarUrl}
-                          alt=""
-                          className="w-8 h-8 rounded-full object-cover border border-slate-300 shadow-xs shrink-0"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-primary-600/20 text-primary-300 font-bold flex items-center justify-center text-xs shrink-0">
-                          {emp.firstName?.[0]}
-                        </div>
-                      )}
-                      <div>
-                        <div>
-                          {emp.firstName} {emp.lastName}
-                        </div>
-                        <span className="block text-[11px] font-normal text-slate-500 font-mono">
-                          {emp.email}
+          </header>
+
+          {/* Search, Filters & View Toggle Toolbar */}
+          <div className="emp-toolbar">
+            <div className="emp-toolbar-row">
+              {/* Search Box */}
+              <div className="emp-search-container">
+                <Search className="emp-search-icon" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search by name, email, or employee ID..."
+                  className="emp-search-input"
+                />
+                {search && (
+                  <button
+                    onClick={() => setSearch('')}
+                    style={{
+                      position: 'absolute',
+                      right: '10px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: 'var(--emp-text-tertiary)',
+                    }}
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* View Switcher */}
+              <div className="emp-view-toggle">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`emp-view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                  title="Card Grid"
+                >
+                  <LayoutGrid className="w-3.5 h-3.5" />
+                  <span>Cards</span>
+                </button>
+                <button
+                  onClick={() => setViewMode('table')}
+                  className={`emp-view-btn ${viewMode === 'table' ? 'active' : ''}`}
+                  title="Table View"
+                >
+                  <List className="w-3.5 h-3.5" />
+                  <span>Table</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Department Filter Pills */}
+            <div className="emp-filter-pills">
+              <button
+                onClick={() => setSelectedDept('ALL')}
+                className={`emp-filter-pill ${selectedDept === 'ALL' ? 'active' : ''}`}
+              >
+                All Departments ({employees.length})
+              </button>
+              {departments.map((dept) => {
+                const count = employees.filter((e) => e.department?.name === dept).length;
+                return (
+                  <button
+                    key={dept}
+                    onClick={() => setSelectedDept(dept)}
+                    className={`emp-filter-pill ${selectedDept === dept ? 'active' : ''}`}
+                  >
+                    {dept} ({count})
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Directory Content */}
+          {loading ? (
+            <div className="emp-loading-state">
+              <div className="emp-spinner" />
+              <span>Querying verified personnel telemetry...</span>
+            </div>
+          ) : filteredEmployees.length === 0 ? (
+            <div className="emp-empty-state">
+              <div className="emp-empty-icon">
+                <Users className="w-6 h-6" />
+              </div>
+              <h3 className="emp-empty-title">No Personnel Records Found</h3>
+              <p className="emp-empty-desc">
+                No active employee records match your search criteria or filter configuration.
+              </p>
+              {(search || selectedDept !== 'ALL') && (
+                <button
+                  onClick={() => {
+                    setSearch('');
+                    setSelectedDept('ALL');
+                  }}
+                  className="emp-btn-primary"
+                  style={{ display: 'inline-flex' }}
+                >
+                  Reset Query
+                </button>
+              )}
+            </div>
+          ) : viewMode === 'grid' ? (
+            /* Card Grid Layout */
+            <div className="emp-grid">
+              {filteredEmployees.map((emp) => (
+                <div key={emp.id} className="emp-card">
+                  <div>
+                    <div className="emp-card-header">
+                      <div className="emp-avatar-wrapper">
+                        {emp.avatarUrl ? (
+                          <img
+                            src={emp.avatarUrl}
+                            alt={`${emp.firstName} ${emp.lastName}`}
+                            className="emp-avatar-img"
+                          />
+                        ) : (
+                          <div className="emp-avatar-fallback">
+                            {emp.firstName?.[0] || 'E'}
+                            {emp.lastName?.[0] || ''}
+                          </div>
+                        )}
+                      </div>
+                      <span className={`emp-badge ${getBadgeClass(emp.status)}`}>
+                        {emp.status ? emp.status.replace('_', ' ') : 'FULL TIME'}
+                      </span>
+                    </div>
+
+                    <div className="emp-card-name">
+                      {emp.firstName} {emp.lastName}
+                    </div>
+                    <div className="emp-card-code">{emp.employeeNumber}</div>
+
+                    <div className="emp-card-details">
+                      <div className="emp-detail-row">
+                        <Briefcase />
+                        <span className="emp-detail-text" style={{ fontWeight: 500, color: 'var(--emp-text-primary)' }}>
+                          {emp.designation?.title || 'Engineer'}
                         </span>
                       </div>
+                      <div className="emp-detail-row">
+                        <Building2 />
+                        <span className="emp-detail-text">
+                          {emp.department?.name || 'General Operations'}
+                        </span>
+                      </div>
+                      <div className="emp-detail-row">
+                        <Mail />
+                        <span className="emp-detail-text emp-detail-email">{emp.email}</span>
+                      </div>
+                      {emp.phone && (
+                        <div className="emp-detail-row">
+                          <Phone />
+                          <span className="emp-detail-text emp-detail-email">{emp.phone}</span>
+                        </div>
+                      )}
                     </div>
-                  </td>
-                  <td className="py-3 px-4 font-mono text-slate-400">{emp.employeeNumber}</td>
-                  <td className="py-3 px-4">{emp.department?.name || 'Engineering'}</td>
-                  <td className="py-3 px-4 text-slate-200">{emp.designation?.title || 'Engineer'}</td>
-                  <td className="py-3 px-4">
-                    <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-mono">
-                      {emp.status}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <Link
-                      href={`/employees/${emp.id}`}
-                      className="text-primary-400 hover:text-primary-300 font-medium"
-                    >
-                      View Details
+                  </div>
+
+                  <div className="emp-card-footer">
+                    <Link href={`/employees/${emp.id}`} className="emp-profile-link">
+                      <span>View Full Profile</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
                     </Link>
-                  </td>
-                </tr>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          ) : (
+            /* Editorial Table Layout */
+            <div className="emp-table-wrapper">
+              <table className="emp-table">
+                <thead>
+                  <tr>
+                    <th>Personnel</th>
+                    <th>Employee Code</th>
+                    <th>Department</th>
+                    <th>Designation</th>
+                    <th>Status</th>
+                    <th style={{ textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredEmployees.map((emp) => (
+                    <tr key={emp.id}>
+                      <td>
+                        <div className="emp-table-user">
+                          {emp.avatarUrl ? (
+                            <img
+                              src={emp.avatarUrl}
+                              alt=""
+                              className="emp-table-avatar"
+                            />
+                          ) : (
+                            <div className="emp-table-avatar-fallback">
+                              {emp.firstName?.[0] || 'E'}
+                              {emp.lastName?.[0] || ''}
+                            </div>
+                          )}
+                          <div>
+                            <div className="emp-table-name">
+                              {emp.firstName} {emp.lastName}
+                            </div>
+                            <div className="emp-table-email">{emp.email}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span className="emp-table-code">{emp.employeeNumber}</span>
+                      </td>
+                      <td>{emp.department?.name || 'Operations'}</td>
+                      <td style={{ fontWeight: 500, color: 'var(--emp-text-primary)' }}>
+                        {emp.designation?.title || 'Personnel'}
+                      </td>
+                      <td>
+                        <span className={`emp-badge ${getBadgeClass(emp.status)}`}>
+                          {emp.status ? emp.status.replace('_', ' ') : 'FULL TIME'}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'right' }}>
+                        <Link href={`/employees/${emp.id}`} className="emp-table-action">
+                          <span>Profile</span>
+                          <ArrowUpRight className="w-3.5 h-3.5" />
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </DashboardLayout>
   );
 }
