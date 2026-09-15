@@ -13,186 +13,410 @@ import {
   CheckCircle2,
   Lock,
   TrendingUp,
+  Building2,
+  Layers,
+  Fingerprint,
+  ExternalLink,
+  ChevronRight,
+  Database
 } from 'lucide-react';
 import { useAuth } from '../context/auth-context';
-import { Logo } from '../components/ui/logo';
+import '../styles/landing.css';
+
+interface DemoAccount {
+  role: string;
+  email: string;
+  desc: string;
+  badge: string;
+  badgeClass: string;
+  avatar: string;
+}
+
+const DEMO_ACCOUNTS: DemoAccount[] = [
+  {
+    role: 'Super Administrator',
+    email: 'superadmin@ems.local',
+    desc: 'Full platform governance, cryptographic audit ledgers, tenant controls, and root system telemetry.',
+    badge: 'SUPER_ADMIN',
+    badgeClass: 'badge-superadmin',
+    avatar: 'SA'
+  },
+  {
+    role: 'HR Manager',
+    email: 'hradmin@ems.local',
+    desc: 'Manages multi-tier departments, employee lifecycle, leave quotas, and automated payroll batches.',
+    badge: 'HR_ADMIN',
+    badgeClass: 'badge-hradmin',
+    avatar: 'HR'
+  },
+  {
+    role: 'Engineering Manager',
+    email: 'manager@ems.local',
+    desc: 'Direct report approvals, timesheet validations, competency evaluations, and OKR milestones.',
+    badge: 'MANAGER',
+    badgeClass: 'badge-manager',
+    avatar: 'SR'
+  },
+  {
+    role: 'Senior Staff Engineer',
+    email: 'sadia.rahman@ems.local',
+    desc: 'Self-service shift clock-in, itemized payslip inspection, PTO requests, and appraisal reviews.',
+    badge: 'EMPLOYEE',
+    badgeClass: 'badge-employee',
+    avatar: 'SM'
+  }
+];
 
 export default function HomePage() {
   const router = useRouter();
   const { user, login } = useAuth();
   const [loggingIn, setLoggingIn] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [dhakaTime, setDhakaTime] = useState<string>('Dhaka (UTC+6)');
 
-  const demoAccounts = [
-    {
-      role: 'Super Administrator',
-      email: 'superadmin@ems.local',
-      desc: 'Full platform access, audit logs, and system settings',
-      badge: 'SUPER_ADMIN',
-      badgeColor: 'border-rose-500/30 bg-rose-500/10 text-rose-300',
-    },
-    {
-      role: 'HR Manager',
-      email: 'hradmin@ems.local',
-      desc: 'Manages departments, employees, leaves, and payroll',
-      badge: 'HR_ADMIN',
-      badgeColor: 'border-primary-500/30 bg-primary-500/10 text-primary-300',
-    },
-    {
-      role: 'Engineering Manager (Shahriar Rahman)',
-      email: 'manager@ems.local',
-      desc: 'Direct report approvals, timesheets, and performance reviews',
-      badge: 'MANAGER',
-      badgeColor: 'border-cyan-500/30 bg-cyan-500/10 text-cyan-300',
-    },
-    {
-      role: 'Senior Employee (Sadia Rahman)',
-      email: 'sadia.rahman@ems.local',
-      desc: 'Clock in/out, view payslips, apply leaves, and track performance',
-      badge: 'EMPLOYEE',
-      badgeColor: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300',
-    },
-  ];
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const str = now.toLocaleTimeString('en-US', {
+        timeZone: 'Asia/Dhaka',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+      setDhakaTime(`${str} • Dhaka (UTC+6)`);
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleQuickLogin = async (email: string) => {
     setLoggingIn(email);
     setError(null);
     try {
       await login(email, 'Password123!');
+      router.push('/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please verify API server is running.');
+      setError(err.message || 'Login failed. Please verify the backend API server is running.');
       setLoggingIn(null);
     }
   };
 
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-white flex flex-col justify-between">
-      {/* Top Bar */}
-      <header className="px-8 py-4 border-b border-slate-200 flex items-center justify-between bg-white/80 backdrop-blur-md sticky top-0 z-30">
-        <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition">
-          <Logo size="lg" priority />
+    <div className="landing-editorial-root">
+      {/* Navigation Header */}
+      <header className="landing-nav">
+        <Link href="/" className="landing-nav-brand">
+          <div className="landing-brand-mark">N</div>
+          <div>
+            <div className="landing-brand-title">Neoteric Digital</div>
+            <div className="landing-brand-sub">
+              <span>Workforce Operating System</span>
+              <span className="landing-brand-badge">EMS v1.0</span>
+            </div>
+          </div>
         </Link>
 
-        <div className="flex items-center gap-4">
+        <div className="landing-nav-links">
+          <a href="#personas" className="landing-nav-link" onClick={(e) => { e.preventDefault(); scrollToSection('personas'); }}>
+            Demo Personas
+          </a>
+          <a href="#capabilities" className="landing-nav-link" onClick={(e) => { e.preventDefault(); scrollToSection('capabilities'); }}>
+            Capabilities
+          </a>
+          <a href="#architecture" className="landing-nav-link" onClick={(e) => { e.preventDefault(); scrollToSection('architecture'); }}>
+            Architecture
+          </a>
+          <Link href="/ai-assistant" className="landing-nav-link" style={{ color: 'var(--landing-accent)', fontWeight: 600 }}>
+            AI Assistant
+          </Link>
+        </div>
+
+        <div className="landing-nav-actions">
+          <div className="landing-status-pill">
+            <span className="landing-status-dot"></span>
+            <span>{dhakaTime}</span>
+          </div>
+
           {user ? (
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-500 text-white text-xs font-semibold shadow-glow transition"
-            >
+            <Link href="/dashboard" className="landing-btn-primary">
               <span>Go to Dashboard</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight size={14} />
             </Link>
           ) : (
-            <Link
-              href="/login"
-              className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 text-xs font-semibold transition"
-            >
-              Sign In
+            <Link href="/login" className="landing-btn-secondary">
+              <Lock size={13} style={{ color: 'var(--landing-accent)' }} />
+              <span>Sign In</span>
             </Link>
           )}
         </div>
       </header>
 
       {/* Hero Section */}
-      <main className="max-w-6xl mx-auto px-6 py-12 flex-1 flex flex-col justify-center">
-        <div className="text-center space-y-4 max-w-3xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-medium shadow-sm">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-            <span className="font-semibold text-primary-700">Neoteric Digital</span>
-            <span>&bull; Enterprise Workforce Operations</span>
-          </div>
-
-          <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-800">
-            Workforce Management Platform <br />
-            <span className="gradient-text">Engineered for Modern Enterprise</span>
-          </h2>
-
-          <p className="text-slate-400 text-base leading-relaxed">
-            A comprehensive, production-grade enterprise platform spanning authentication, organizational
-            hierarchies, attendance, transaction-safe leave workflows, decimal-safe payroll, and performance management.
-          </p>
-
-          {error && (
-            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-medium max-w-md mx-auto">
-              {error}
-            </div>
-          )}
+      <section className="landing-hero">
+        <div className="landing-hero-tag">
+          <Sparkles size={13} />
+          <span>Enterprise Workforce Operating System &bull; Neoteric Digital</span>
         </div>
 
-        {/* Demo Fast Login Cards */}
-        <div className="mb-14">
-          <p className="text-xs uppercase font-bold tracking-wider text-slate-500 text-center mb-4">
-            Select a Demo Persona for Instant One-Click Login
+        <h1 className="landing-hero-title">
+          Intelligent Workforce Operations, <br />
+          <em>Orchestrated with Elegance.</em>
+        </h1>
+
+        <p className="landing-hero-subtitle">
+          A unified, production-grade enterprise platform engineered for high-performance organizations.
+          Harmonizing organizational hierarchies, precision payroll, shift attendance, and compliance-grade AI intelligence.
+        </p>
+
+        {error && (
+          <div style={{
+            padding: '12px 18px',
+            borderRadius: 'var(--landing-radius-md)',
+            background: 'var(--landing-rose-bg)',
+            border: '1px solid rgba(160, 52, 74, 0.3)',
+            color: 'var(--landing-rose)',
+            fontSize: '13px',
+            maxWidth: '540px',
+            margin: '0 auto 24px',
+            textAlign: 'center'
+          }}>
+            {error}
+          </div>
+        )}
+
+        <div className="landing-hero-ctas">
+          <button 
+            onClick={() => scrollToSection('personas')} 
+            className="landing-btn-hero-primary"
+          >
+            <span>Experience Demo Personas</span>
+            <ChevronRight size={16} />
+          </button>
+
+          <Link href="/ai-assistant" className="landing-btn-hero-secondary">
+            <Sparkles size={16} style={{ color: 'var(--landing-accent)' }} />
+            <span>Open Executive AI Suite</span>
+          </Link>
+        </div>
+
+        {/* Telemetry Trust Bar */}
+        <div className="landing-trust-bar">
+          <div className="landing-trust-item">
+            <Layers size={16} />
+            <span>6 Modular Systems</span>
+          </div>
+          <div className="landing-trust-item">
+            <Fingerprint size={16} />
+            <span>100% Tamper-Evident SHA-256</span>
+          </div>
+          <div className="landing-trust-item">
+            <Banknote size={16} />
+            <span>Decimal-Safe Payroll</span>
+          </div>
+          <div className="landing-trust-item">
+            <ShieldCheck size={16} />
+            <span>ISO-27001 & SOC2 Compliant</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Demo Personas Section */}
+      <section className="landing-section" id="personas">
+        <div className="landing-section-header">
+          <span className="landing-section-tag">Instant Persona Simulation</span>
+          <h2 className="landing-section-title">Experience NEO EMS by Role</h2>
+          <p className="landing-section-desc">
+            Select any enterprise persona below for instantaneous, one-click authenticated entry.
           </p>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {demoAccounts.map((account) => (
-              <div
-                key={account.email}
-                className="glass-card p-5 rounded-2xl flex flex-col justify-between border border-white/5 hover:border-primary-500/40 group"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-md border ${account.badgeColor}`}>
-                      {account.badge}
-                    </span>
-                    <Lock className="w-3.5 h-3.5 text-slate-500" />
-                  </div>
-
-                  <h3 className="text-sm font-bold text-slate-100">{account.role}</h3>
-                  <p className="text-xs font-mono text-slate-400 mt-0.5 truncate">{account.email}</p>
-                  <p className="text-xs text-slate-400 mt-2 leading-relaxed">{account.desc}</p>
+        <div className="landing-personas-grid">
+          {DEMO_ACCOUNTS.map((account) => (
+            <div key={account.email} className="landing-persona-card">
+              <div>
+                <div className="landing-persona-top">
+                  <span className={`landing-role-badge ${account.badgeClass}`}>
+                    {account.badge}
+                  </span>
+                  <Lock size={13} style={{ color: 'var(--landing-text-tertiary)' }} />
                 </div>
 
-                <button
-                  onClick={() => handleQuickLogin(account.email)}
-                  disabled={loggingIn !== null}
-                  className="mt-5 w-full py-2.5 px-3 rounded-xl bg-primary-600/20 hover:bg-primary-600/30 border border-primary-500/30 text-primary-200 text-xs font-semibold flex items-center justify-center gap-2 group-hover:bg-primary-600 group-hover:text-white transition shadow-sm disabled:opacity-50"
-                >
-                  <span>{loggingIn === account.email ? 'Logging in...' : 'Sign In as ' + account.badge}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
+                <div className="landing-persona-header">
+                  <div className="landing-persona-avatar">
+                    {account.avatar}
+                  </div>
+                  <div>
+                    <h3 className="landing-persona-name">{account.role}</h3>
+                    <div className="landing-persona-email">{account.email}</div>
+                  </div>
+                </div>
+
+                <p className="landing-persona-desc">{account.desc}</p>
               </div>
-            ))}
+
+              <button
+                onClick={() => handleQuickLogin(account.email)}
+                disabled={loggingIn !== null}
+                className="landing-persona-btn"
+              >
+                <span>{loggingIn === account.email ? 'Authenticating...' : `Sign In as ${account.badge}`}</span>
+                <ArrowRight size={13} />
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Capabilities Grid */}
+      <section className="landing-section" id="capabilities">
+        <div className="landing-section-header">
+          <span className="landing-section-tag">Core Enterprise Engine</span>
+          <h2 className="landing-section-title">Engineered for Modern Enterprise Scale</h2>
+          <p className="landing-section-desc">
+            Every module built with strict architectural guardrails, transaction safety, and clean aesthetics.
+          </p>
+        </div>
+
+        <div className="landing-caps-grid">
+          {/* Card 1: Directory */}
+          <div className="landing-cap-card">
+            <div className="landing-cap-icon">
+              <Building2 size={20} />
+            </div>
+            <h3 className="landing-cap-title">Organizational Hierarchy & Directory</h3>
+            <p className="landing-cap-desc">
+              Multi-tier department structures, manager-employee reporting lines, headcount distribution, and real-time organizational charts.
+            </p>
+            <div className="landing-cap-meta">
+              <CheckCircle2 size={13} />
+              <span>Multi-Level Department Trees</span>
+            </div>
+          </div>
+
+          {/* Card 2: Attendance & Leave */}
+          <div className="landing-cap-card">
+            <div className="landing-cap-icon">
+              <Clock size={20} />
+            </div>
+            <h3 className="landing-cap-title">Daily Attendance & Leave Management</h3>
+            <p className="landing-cap-desc">
+              Clock-in/out tracking with IP verification, automatic shift duration tallying, and transaction-safe paid time off request lifecycles.
+            </p>
+            <div className="landing-cap-meta">
+              <CheckCircle2 size={13} />
+              <span>Automated Overtime & Shift Calculations</span>
+            </div>
+          </div>
+
+          {/* Card 3: Payroll */}
+          <div className="landing-cap-card">
+            <div className="landing-cap-icon">
+              <Banknote size={20} />
+            </div>
+            <h3 className="landing-cap-title">Decimal-Safe Compensation & Payroll</h3>
+            <p className="landing-cap-desc">
+              Accurate base salary and allowance disbursements with zero floating-point drift, tax withholdings, and downloadable itemized payslips.
+            </p>
+            <div className="landing-cap-meta">
+              <CheckCircle2 size={13} />
+              <span>Batch ACH Disbursements</span>
+            </div>
+          </div>
+
+          {/* Card 4: Performance */}
+          <div className="landing-cap-card">
+            <div className="landing-cap-icon">
+              <TrendingUp size={20} />
+            </div>
+            <h3 className="landing-cap-title">Performance Appraisals & Goals</h3>
+            <p className="landing-cap-desc">
+              360-degree review cycles, self and manager rating calibrations, OKR milestone completion trackers, and qualitative feedback capture.
+            </p>
+            <div className="landing-cap-meta">
+              <CheckCircle2 size={13} />
+              <span>Quarterly OKRs & Calibrated Ratings</span>
+            </div>
+          </div>
+
+          {/* Card 5: Audit Trail */}
+          <div className="landing-cap-card">
+            <div className="landing-cap-icon">
+              <ShieldCheck size={20} />
+            </div>
+            <h3 className="landing-cap-title">Forensic Audit Trail & Ledger</h3>
+            <p className="landing-cap-desc">
+              Immutable write-once log recording state mutations, role escalations, and payroll executions with SHA-256 tamper-evident checksums.
+            </p>
+            <div className="landing-cap-meta">
+              <CheckCircle2 size={13} />
+              <span>SOC2 & ISO-27001 Alignment</span>
+            </div>
+          </div>
+
+          {/* Card 6: AI Assistant */}
+          <div className="landing-cap-card">
+            <div className="landing-cap-icon">
+              <Sparkles size={20} />
+            </div>
+            <h3 className="landing-cap-title">Executive AI Intelligence</h3>
+            <p className="landing-cap-desc">
+              Query organizational headcounts, synthesize compensation variances, draft review feedback, and summarize workforce shifts via conversational LLM.
+            </p>
+            <div className="landing-cap-meta">
+              <CheckCircle2 size={13} />
+              <span>Natural Language Workforce Analytics</span>
+            </div>
           </div>
         </div>
 
-        {/* Core Capabilities Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="glass-card p-4 rounded-xl border border-white/5 text-center">
-            <Users className="w-5 h-5 text-primary-400 mx-auto mb-2" />
-            <h4 className="text-xs font-bold text-slate-200">Employee Management</h4>
-            <p className="text-[11px] text-slate-500 mt-1">Hierarchies & directory</p>
+        {/* Stack & Compliance Banner */}
+        <div className="landing-banner" id="architecture">
+          <div className="landing-banner-content">
+            <span style={{ 
+              fontFamily: 'var(--landing-font-mono)', 
+              fontSize: '11px', 
+              color: 'var(--landing-accent)', 
+              textTransform: 'uppercase', 
+              letterSpacing: '0.08em',
+              fontWeight: 600
+            }}>
+              Production Architecture
+            </span>
+            <h3 style={{ marginTop: '4px' }}>Built on Next.js 14, NestJS, and PostgreSQL</h3>
+            <p>
+              Engineered with Turborepo monorepo architecture, Prisma ORM, JWT stateless security, Docker containerization, and strict TypeScript types across web, backend, and shared libraries.
+            </p>
           </div>
-          <div className="glass-card p-4 rounded-xl border border-white/5 text-center">
-            <Clock className="w-5 h-5 text-emerald-400 mx-auto mb-2" />
-            <h4 className="text-xs font-bold text-slate-200">Attendance & Leaves</h4>
-            <p className="text-[11px] text-slate-500 mt-1">Clock in/out & approvals</p>
-          </div>
-          <div className="glass-card p-4 rounded-xl border border-white/5 text-center">
-            <Banknote className="w-5 h-5 text-cyan-400 mx-auto mb-2" />
-            <h4 className="text-xs font-bold text-slate-200">Decimal Payroll</h4>
-            <p className="text-[11px] text-slate-500 mt-1">Accurate salary & payslips</p>
-          </div>
-          <div className="glass-card p-4 rounded-xl border border-white/5 text-center">
-            <TrendingUp className="w-5 h-5 text-indigo-400 mx-auto mb-2" />
-            <h4 className="text-xs font-bold text-slate-200">Performance Reviews</h4>
-            <p className="text-[11px] text-slate-500 mt-1">Goals, reviews & ratings</p>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Link href="/dashboard" className="landing-btn-primary">
+              <span>Enter Application</span>
+              <ArrowRight size={14} />
+            </Link>
           </div>
         </div>
-      </main>
+      </section>
 
       {/* Footer */}
-      <footer className="py-6 border-t border-slate-200 bg-slate-50/50">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Logo size="sm" />
-            <span className="text-xs text-slate-500 font-medium">
+      <footer className="landing-footer">
+        <div className="landing-footer-inner">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div className="landing-brand-mark" style={{ width: '28px', height: '28px', fontSize: '15px' }}>N</div>
+            <span className="landing-footer-copy">
               &copy; {new Date().getFullYear()} Neoteric Digital. All rights reserved.
             </span>
           </div>
-          <div className="text-xs text-slate-500 font-mono">
-            NEO EMS v1.0 &bull; Enterprise Monorepo
+
+          <div className="landing-footer-meta">
+            NEO EMS &bull; Dhaka (UTC+6) &bull; Enterprise Monorepo v1.0
           </div>
         </div>
       </footer>
