@@ -14,111 +14,171 @@ import {
   Sparkles,
   ShieldCheck,
   LogOut,
+  ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../../context/auth-context';
 import { SystemRole } from '@ems/shared';
-import { Logo } from '../ui/logo';
 import { AvatarModal } from '../profile/avatar-modal';
+import '../../styles/sidebar.css';
+
+interface NavItem {
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: string;
+  isLive?: boolean;
+}
+
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
 
 export const Sidebar: React.FC = () => {
   const pathname = usePathname();
   const { user, logout, hasRole } = useAuth();
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
 
-  const navItems = [
-    { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { label: 'Employees', href: '/employees', icon: Users },
-    { label: 'Departments', href: '/organization/departments', icon: Building2 },
-    { label: 'Attendance', href: '/attendance', icon: Clock },
-    { label: 'Leaves', href: '/leaves', icon: CalendarDays },
-    { label: 'Payroll', href: '/payroll', icon: Banknote },
-    { label: 'Performance', href: '/performance', icon: TrendingUp },
-    { label: 'AI Assistant', href: '/ai-assistant', icon: Sparkles },
+  const navSections: NavSection[] = [
+    {
+      title: 'Overview',
+      items: [
+        { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard }
+      ]
+    },
+    {
+      title: 'People & Org',
+      items: [
+        { label: 'Employees', href: '/employees', icon: Users, badge: '4' },
+        { label: 'Departments', href: '/organization/departments', icon: Building2, badge: '5' },
+        { label: 'Attendance', href: '/attendance', icon: Clock, badge: 'Active' },
+        { label: 'Leaves', href: '/leaves', icon: CalendarDays },
+        { label: 'Payroll', href: '/payroll', icon: Banknote, badge: 'Aug Paid' },
+        { label: 'Performance', href: '/performance', icon: TrendingUp, badge: '4.85 ★' },
+      ]
+    }
   ];
 
+  // Compliance section for authorized roles
   if (hasRole(SystemRole.SUPER_ADMIN, SystemRole.HR_ADMIN, SystemRole.AUDITOR)) {
-    navItems.push({
-      label: 'Audit Trail',
-      href: '/admin/audit-logs',
-      icon: ShieldCheck,
+    navSections.push({
+      title: 'Compliance & Audit',
+      items: [
+        { label: 'Audit Trail', href: '/admin/audit-logs', icon: ShieldCheck, badge: 'SOC2' }
+      ]
     });
   }
 
+  // AI Suite section
+  navSections.push({
+    title: 'Intelligence',
+    items: [
+      { label: 'AI Assistant', href: '/ai-assistant', icon: Sparkles, badge: 'LIVE', isLive: true }
+    ]
+  });
+
+  const isItemActive = (href: string) => {
+    if (href === '/dashboard') {
+      return pathname === '/dashboard';
+    }
+    if (href === '/admin/audit-logs') {
+      return pathname.includes('audit-logs');
+    }
+    return pathname === href || pathname.startsWith(href);
+  };
+
+  const userInitials = user?.firstName
+    ? `${user.firstName.charAt(0)}${user.lastName ? user.lastName.charAt(0) : ''}`
+    : 'SR';
+
   return (
-    <aside className="w-64 border-r border-slate-200 bg-white flex flex-col justify-between p-4 shrink-0">
-      <div>
-        {/* Logo */}
-        <div className="px-2 py-3 mb-4 border-b border-slate-200 flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-90 transition">
-            <Logo size="md" priority />
-          </Link>
-          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-bold">
-            EMS
-          </span>
+    <aside className="sidebar-editorial">
+      {/* Brand Header */}
+      <Link href="/dashboard" className="sidebar-brand">
+        <div className="sidebar-brand-left">
+          <div className="sidebar-brand-mark">N</div>
+          <div>
+            <div className="sidebar-brand-title">Neoteric</div>
+            <div className="sidebar-brand-sub">
+              <span className="sidebar-brand-label">Digital</span>
+              <span className="sidebar-brand-dot"></span>
+              <span className="sidebar-brand-type">EMS</span>
+            </div>
+          </div>
         </div>
 
-        {/* Navigation Items */}
-        <nav className="space-y-1">
-          {navItems.map((item) => {
-            const isActive = 
-              pathname === item.href || 
-              (item.href !== '/dashboard' && pathname.startsWith(item.href)) ||
-              (item.href === '/admin/audit-logs' && pathname.includes('audit-logs'));
-            const Icon = item.icon;
+        <span className="sidebar-system-badge">
+          v1.0
+        </span>
+      </Link>
 
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  isActive
-                    ? 'bg-primary-500/15 text-primary-300 border border-primary-500/30 shadow-glow'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
-                }`}
-              >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-primary-400' : 'text-slate-400'}`} />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
+      {/* Navigation Scroll Area */}
+      <nav className="sidebar-nav-container">
+        {navSections.map((section) => (
+          <div key={section.title} className="sidebar-section">
+            <div className="sidebar-section-label">{section.title}</div>
+            {section.items.map((item) => {
+              const active = isItemActive(item.href);
+              const Icon = item.icon;
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`sidebar-link ${active ? 'active' : ''}`}
+                >
+                  <Icon className="sidebar-icon" />
+                  <span>{item.label}</span>
+
+                  {item.badge && (
+                    <span className={`sidebar-badge ${item.isLive ? 'live' : ''}`}>
+                      {item.isLive && <span className="sidebar-badge-dot" />}
+                      <span>{item.badge}</span>
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
+      </nav>
 
       {/* User Footer Profile */}
-      <div className="pt-4 border-t border-slate-200">
-        <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-200">
+      <div className="sidebar-footer">
+        <div className="sidebar-user-card">
           <button
             type="button"
             onClick={() => setIsAvatarModalOpen(true)}
             title="Click to change your profile picture"
-            className="flex items-center gap-2.5 overflow-hidden text-left hover:opacity-80 transition group flex-1"
+            className="sidebar-user-info-btn"
           >
-            {user?.avatarUrl ? (
-              <img
-                src={user.avatarUrl}
-                alt="Avatar"
-                className="w-8 h-8 rounded-full object-cover border border-slate-300 group-hover:border-primary-500 shrink-0 shadow-xs"
-              />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-primary-600/20 border border-primary-500/30 flex items-center justify-center text-xs font-semibold text-primary-700 shrink-0">
-                {user?.firstName?.[0] || 'U'}
+            <div className="sidebar-avatar">
+              {user?.avatarUrl ? (
+                <img
+                  src={user.avatarUrl}
+                  alt="Avatar"
+                />
+              ) : (
+                <span>{userInitials}</span>
+              )}
+            </div>
+
+            <div className="sidebar-user-details">
+              <div className="sidebar-user-name">
+                {user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Shahriar Rahman' : 'Shahriar Rahman'}
               </div>
-            )}
-            <div className="truncate flex-1">
-              <p className="text-xs font-semibold text-slate-800 truncate group-hover:text-primary-700">
-                {user ? `${user.firstName || ''} ${user.lastName || ''}` : 'Loading...'}
-              </p>
-              <p className="text-[10px] text-slate-500 font-mono">
-                {user?.roles?.[0] || 'EMPLOYEE'} • Photo
-              </p>
+              <div className="sidebar-user-role">
+                <span>{user?.roles?.[0] || 'SUPER_ADMIN'}</span>
+              </div>
             </div>
           </button>
+
           <button
             onClick={() => logout()}
-            title="Logout"
-            className="p-1.5 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-500 transition ml-1"
+            title="Sign Out"
+            className="sidebar-logout-btn"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut size={15} />
           </button>
         </div>
       </div>
