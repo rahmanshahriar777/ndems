@@ -60,7 +60,10 @@ export const Sidebar: React.FC = () => {
         {/* Navigation Items */}
         <nav className="space-y-1">
           {navItems.map((item) => {
-            const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
+            const isActive = 
+              pathname === item.href || 
+              (item.href !== '/dashboard' && pathname.startsWith(item.href)) ||
+              (item.href === '/admin/audit-logs' && pathname.includes('audit-logs'));
             const Icon = item.icon;
 
             return (
