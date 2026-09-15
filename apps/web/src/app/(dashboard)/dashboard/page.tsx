@@ -1,38 +1,60 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import {
-  Users,
-  Clock,
-  CalendarDays,
-  Banknote,
-  TrendingUp,
-} from 'lucide-react';
+import Link from 'next/link';
 import { DashboardLayout } from '../../../components/layout/dashboard-layout';
-import { StatCard } from '../../../components/ui/stat-card';
 import { useAuth } from '../../../context/auth-context';
 import { api } from '../../../lib/api-client';
-import { formatDhakaTime } from '../../../lib/date-utils';
-import { Logo } from '../../../components/ui/logo';
+import '../../../styles/dashboard.css';
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const [stats, setStats] = useState({
     headcount: 4,
-    presentToday: 3,
-    pendingLeaves: 1,
-    payrollStatus: 'Approved (Aug)',
+    attendanceRate: 96.2,
+    pendingLeaves: 0,
+    monthlyPayroll: '38K',
+    payrollPeriod: 'Approved (Aug)',
   });
   const [clockStatus, setClockStatus] = useState<'IDLE' | 'CLOCKED_IN' | 'CLOCKED_OUT'>('IDLE');
-  const [timeString, setTimeString] = useState<string>('');
+  const [timeState, setTimeState] = useState({
+    timeShort: '10:47',
+    period: '10 AM',
+    dateStr: 'Mon, 15 Sep 2026',
+  });
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeString(formatDhakaTime());
-    }, 1000);
-    setTimeString(formatDhakaTime());
+    const updateClock = () => {
+      const now = new Date();
+      const timeShort = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Dhaka',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      }).format(now);
 
-    // Fetch live dashboard metrics
+      const period = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Dhaka',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      }).format(now);
+
+      const dateStr = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Asia/Dhaka',
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      }).format(now);
+
+      setTimeState({ timeShort, period, dateStr });
+    };
+
+    updateClock();
+    const interval = setInterval(updateClock, 1000);
+
+    // Live backend metrics
     api.get('/employees?limit=1')
       .then((res) => {
         if (res?.meta?.total) {
@@ -49,7 +71,7 @@ export default function DashboardPage() {
       })
       .catch(() => {});
 
-    return () => clearInterval(timer);
+    return () => clearInterval(interval);
   }, []);
 
   const handleClockAction = async () => {
@@ -62,158 +84,349 @@ export default function DashboardPage() {
         setClockStatus('CLOCKED_IN');
       }
     } catch {
-      // Toggle for demo if backend was already clocked
       setClockStatus(clockStatus === 'CLOCKED_IN' ? 'CLOCKED_OUT' : 'CLOCKED_IN');
     }
   };
 
+  const displayName = user?.firstName || 'System';
+
   return (
     <DashboardLayout title="Executive Workforce Dashboard">
-      {/* Welcome banner with Company Logo */}
-      <div className="glass-panel p-6 rounded-2xl border border-slate-200/80 bg-gradient-to-r from-slate-50/80 via-white to-primary-50/30 relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
-        <div className="flex items-center gap-4">
-          <div className="p-2 rounded-2xl bg-white border border-slate-200 shadow-sm shrink-0">
-            <Logo size="md" priority />
-          </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-bold text-slate-800">
-                Welcome back, {user?.firstName || 'Colleague'}! 👋
-              </span>
-              <span className="px-2 py-0.5 rounded-full bg-primary-100 text-primary-700 text-[10px] font-mono uppercase font-bold border border-primary-200">
-                {user?.roles?.[0] || 'EMPLOYEE'}
-              </span>
-            </div>
-            <p className="text-xs text-slate-500">
-              Neoteric Digital EMS &bull; All enterprise operations active and nominal.
-            </p>
-          </div>
-        </div>
+      <div className="dashboard-editorial-wrapper">
+        <div className="dash-page">
 
-        <div className="flex items-center gap-3">
-          <div className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-right font-mono text-xs shadow-sm">
-            <span className="text-slate-500 block text-[10px] uppercase font-sans">Dhaka Time (UTC+6)</span>
-            <span className="text-slate-800 font-bold">{timeString || '--:--:--'}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* KPI Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <StatCard
-          title="Total Headcount"
-          value={stats.headcount}
-          subtitle="Active workforce members"
-          icon={Users}
-          color="primary"
-          trend={{ value: '12%', isPositive: true }}
-        />
-        <StatCard
-          title="Attendance Today"
-          value="96.2%"
-          subtitle="On-time shift arrival rate"
-          icon={Clock}
-          color="emerald"
-          trend={{ value: '3.1%', isPositive: true }}
-        />
-        <StatCard
-          title="Pending Leaves"
-          value={stats.pendingLeaves}
-          subtitle="Awaiting manager approval"
-          icon={CalendarDays}
-          color="amber"
-        />
-        <StatCard
-          title="Monthly Payroll"
-          value="BDT 38,000"
-          subtitle={stats.payrollStatus}
-          icon={Banknote}
-          color="cyan"
-          trend={{ value: 'On schedule', isPositive: true }}
-        />
-      </div>
-
-      {/* Interactive Middle Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Attendance Widget */}
-        <div className="glass-card p-6 rounded-2xl border border-white/5 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
-              <Clock className="w-4 h-4 text-emerald-400" />
-              Daily Time Clock
-            </h3>
-            <span className="text-[11px] text-slate-400 font-mono">Shift: 09:00 - 18:00 (Dhaka UTC+6)</span>
-          </div>
-
-          <div className="p-5 rounded-xl bg-white/[0.02] border border-white/5 text-center space-y-3">
-            <div className="text-3xl font-bold font-mono tracking-wider text-slate-100">
-              {timeString || '09:00:00 AM'}
-            </div>
-            <div className="inline-block px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-mono">
-              Asia/Dhaka (UTC+6:00)
-            </div>
-            <p className="text-xs text-slate-400">
-              {clockStatus === 'CLOCKED_IN'
-                ? '🟢 Active Session — Working on Core Tasks'
-                : clockStatus === 'CLOCKED_OUT'
-                ? '🔴 Shift Concluded for Today'
-                : '⚪ Ready to begin your working hours'}
-            </p>
-          </div>
-
-          <button
-            onClick={handleClockAction}
-            className={`w-full py-3 rounded-xl font-semibold text-xs transition shadow-sm flex items-center justify-center gap-2 ${
-              clockStatus === 'CLOCKED_IN'
-                ? 'bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30'
-                : 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30'
-            }`}
-          >
-            <Clock className="w-4 h-4" />
-            <span>
-              {clockStatus === 'CLOCKED_IN' ? 'Clock Out Now' : 'Clock In for Today'}
-            </span>
-          </button>
-        </div>
-
-        {/* Quick Actions Panel */}
-        <div className="glass-card p-6 rounded-2xl border border-white/5 space-y-4 lg:col-span-2 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-cyan-400" />
-                Quick Actions & Workforce Overview
-              </h3>
-              <span className="text-[10px] font-mono uppercase bg-cyan-500/10 text-cyan-300 px-2 py-0.5 rounded border border-cyan-500/20">
-                Active
-              </span>
-            </div>
-            <p className="text-xs text-slate-400 mb-4">
-              Quick access to common workforce management tasks and operational metrics.
-            </p>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 text-center space-y-1">
-                <Users className="w-5 h-5 text-primary-400 mx-auto" />
-                <span className="text-xs font-semibold text-slate-200 block">Employees</span>
-                <span className="text-[11px] text-slate-500">Directory & profiles</span>
+          {/* Welcome Section */}
+          <div className="welcome-section">
+            <div className="welcome-row">
+              <div>
+                <h1 className="welcome-greeting">Welcome back, {displayName}</h1>
+                <p className="welcome-subtitle">
+                  Neoteric Digital EMS — All enterprise operations active and nominal.
+                </p>
               </div>
-              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 text-center space-y-1">
-                <CalendarDays className="w-5 h-5 text-amber-400 mx-auto" />
-                <span className="text-xs font-semibold text-slate-200 block">Leave Requests</span>
-                <span className="text-[11px] text-slate-500">Apply & approve</span>
-              </div>
-              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 text-center space-y-1">
-                <Banknote className="w-5 h-5 text-emerald-400 mx-auto" />
-                <span className="text-xs font-semibold text-slate-200 block">Payroll</span>
-                <span className="text-[11px] text-slate-500">Payslips & reports</span>
+              <div className="welcome-meta">
+                <span className="welcome-tag">
+                  <span className="welcome-tag-dot" />
+                  Platform Live
+                </span>
+                <span className="welcome-date">{timeState.dateStr}</span>
               </div>
             </div>
           </div>
+
+          {/* KPIs Grid */}
+          <div className="kpi-grid">
+            <div className="kpi-card">
+              <div className="kpi-header">
+                <div className="kpi-icon green">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                  </svg>
+                </div>
+                <span className="kpi-trend up">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="19" x2="12" y2="5" />
+                    <polyline points="5 12 12 5 19 12" />
+                  </svg>
+                  +12%
+                </span>
+              </div>
+              <div className="kpi-value">{stats.headcount}</div>
+              <div className="kpi-label">Total Headcount</div>
+              <div className="kpi-context">Active workforce members</div>
+            </div>
+
+            <div className="kpi-card">
+              <div className="kpi-header">
+                <div className="kpi-icon blue">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                  </svg>
+                </div>
+                <span className="kpi-trend up">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="19" x2="12" y2="5" />
+                    <polyline points="5 12 12 5 19 12" />
+                  </svg>
+                  +3.1%
+                </span>
+              </div>
+              <div className="kpi-value">
+                {stats.attendanceRate}
+                <span className="kpi-unit">%</span>
+              </div>
+              <div className="kpi-label">Attendance Today</div>
+              <div className="kpi-context">On-time shift arrival rate</div>
+            </div>
+
+            <div className="kpi-card">
+              <div className="kpi-header">
+                <div className="kpi-icon amber">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                </div>
+                <span className="kpi-trend neutral">On schedule</span>
+              </div>
+              <div className="kpi-value">{stats.pendingLeaves}</div>
+              <div className="kpi-label">Pending Leaves</div>
+              <div className="kpi-context">Awaiting manager approval</div>
+            </div>
+
+            <div className="kpi-card">
+              <div className="kpi-header">
+                <div className="kpi-icon purple">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="1" x2="12" y2="23" />
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                  </svg>
+                </div>
+                <span className="kpi-trend up">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="19" x2="12" y2="5" />
+                    <polyline points="5 12 12 5 19 12" />
+                  </svg>
+                  On time
+                </span>
+              </div>
+              <div className="kpi-value">
+                <span className="kpi-unit">BDT</span> {stats.monthlyPayroll}
+              </div>
+              <div className="kpi-label">Monthly Payroll</div>
+              <div className="kpi-context">{stats.payrollPeriod}</div>
+            </div>
+          </div>
+
+          {/* Module / Portal Tiles */}
+          <div className="section-header">
+            <span className="section-title">Modules</span>
+          </div>
+          <div className="portals-grid">
+            <Link href="/payroll" className="portal-tile">
+              <div className="portal-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="1" x2="12" y2="23" />
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+              </div>
+              <div className="portal-info">
+                <span className="portal-name">Payroll</span>
+                <span className="portal-desc">Payslips & disbursement</span>
+              </div>
+            </Link>
+
+            <Link href="/performance" className="portal-tile">
+              <div className="portal-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="20" x2="18" y2="10" />
+                  <line x1="12" y1="20" x2="12" y2="4" />
+                  <line x1="6" y1="20" x2="6" y2="14" />
+                </svg>
+              </div>
+              <div className="portal-info">
+                <span className="portal-name">Performance</span>
+                <span className="portal-desc">Reviews & goal tracking</span>
+              </div>
+            </Link>
+
+            <Link href="/ai-assistant" className="portal-tile">
+              <div className="portal-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z" />
+                  <line x1="9" y1="21" x2="15" y2="21" />
+                </svg>
+              </div>
+              <div className="portal-info">
+                <span className="portal-name">AI Assistant</span>
+                <span className="portal-desc">Generate & summarize</span>
+              </div>
+            </Link>
+
+            <Link href="/admin/audit-logs" className="portal-tile">
+              <div className="portal-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 20h9" />
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                </svg>
+              </div>
+              <div className="portal-info">
+                <span className="portal-name">Audit Trail</span>
+                <span className="portal-desc">Activity logs & compliance</span>
+              </div>
+            </Link>
+          </div>
+
+          {/* Bottom Grid: Clock + Quick Actions */}
+          <div className="bottom-grid">
+
+            {/* Daily Time Clock */}
+            <div className="clock-card">
+              <span className="clock-label">Daily Time Clock</span>
+              <div className="clock-time-display">{timeState.timeShort}</div>
+              <div className="clock-period">{timeState.period}</div>
+              <div className="clock-shift-info">
+                <span className="clock-shift-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                </span>
+                <span className="clock-shift-text">Shift: <strong>09:00 – 18:00</strong></span>
+              </div>
+              <span className="clock-timezone">Asia/Dhaka (UTC+6:00)</span>
+              <div className="clock-divider" />
+              <div className="clock-status">
+                <span className={`clock-status-dot ${clockStatus === 'CLOCKED_IN' ? 'active' : ''}`} />
+                {clockStatus === 'CLOCKED_IN'
+                  ? 'Currently clocked in for today'
+                  : 'Ready to begin your working hours'}
+              </div>
+              <button
+                className={`clock-action-btn ${clockStatus === 'CLOCKED_IN' ? 'clocked-in' : ''}`}
+                onClick={handleClockAction}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+                {clockStatus === 'CLOCKED_IN' ? 'Clock Out for Today' : 'Clock In for Today'}
+              </button>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="actions-card">
+              <div className="actions-header">
+                <div>
+                  <div className="actions-title">Quick Actions</div>
+                  <div className="actions-subtitle">Common workforce management tasks</div>
+                </div>
+                <Link href="/employees" className="section-link">View all</Link>
+              </div>
+              <div className="actions-grid">
+                <Link href="/employees" className="action-item">
+                  <div className="action-icon teal">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                      <circle cx="9" cy="7" r="4" />
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                  </div>
+                  <div className="action-info">
+                    <span className="action-name">Employee Directory</span>
+                    <span className="action-desc">Profiles & org structure</span>
+                  </div>
+                  <span className="action-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </span>
+                </Link>
+
+                <Link href="/leaves" className="action-item">
+                  <div className="action-icon blue">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                  </div>
+                  <div className="action-info">
+                    <span className="action-name">Leave Requests</span>
+                    <span className="action-desc">Apply & approve leaves</span>
+                  </div>
+                  <span className="action-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </span>
+                </Link>
+
+                <Link href="/payroll" className="action-item">
+                  <div className="action-icon amber">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="12" y1="1" x2="12" y2="23" />
+                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    </svg>
+                  </div>
+                  <div className="action-info">
+                    <span className="action-name">Generate Payslip</span>
+                    <span className="action-desc">Create & distribute</span>
+                  </div>
+                  <span className="action-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </span>
+                </Link>
+
+                <Link href="/performance" className="action-item">
+                  <div className="action-icon purple">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="20" x2="18" y2="10" />
+                      <line x1="12" y1="20" x2="12" y2="4" />
+                      <line x1="6" y1="20" x2="6" y2="14" />
+                    </svg>
+                  </div>
+                  <div className="action-info">
+                    <span className="action-name">Run Review Cycle</span>
+                    <span className="action-desc">Initiate evaluations</span>
+                  </div>
+                  <span className="action-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </span>
+                </Link>
+
+                <Link href="/organization/departments" className="action-item">
+                  <div className="action-icon green">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                    </svg>
+                  </div>
+                  <div className="action-info">
+                    <span className="action-name">Upload Document</span>
+                    <span className="action-desc">Policies & contracts</span>
+                  </div>
+                  <span className="action-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </span>
+                </Link>
+
+                <Link href="/admin/audit-logs" className="action-item">
+                  <div className="action-icon rose">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 20h9" />
+                      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                    </svg>
+                  </div>
+                  <div className="action-info">
+                    <span className="action-name">View Audit Log</span>
+                    <span className="action-desc">System activity trail</span>
+                  </div>
+                  <span className="action-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </span>
+                </Link>
+              </div>
+            </div>
+
+          </div>
+
         </div>
       </div>
     </DashboardLayout>
   );
 }
-
-
